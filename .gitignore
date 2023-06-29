@@ -1,0 +1,17 @@
+strategy_*.prism
+prism/
+temp/
+experiment_logs/
+recovery_*/
+decision_trees/
+benchmark.html
+benchmark.json
+.idea/
+src/__pycache__/
+src/graph_analysis/__pycache__/
+python3-venv/
+prism-*.tar.gz
+benchmarks/**/*_report.txt
+benchmarks/**/*_initial_state.txt
+benchmarks/**/*_sensitivity.txt
+
