@@ -16,17 +16,18 @@ This app can analyze the functional decomposition of graphs in DOT format and pr
 ## Getting started
 Clone the repository, navigate to its root and execute the install script:
 ```
+git clone https://github.com/Open-MBEE/pmc-fdir.git
+cd pmc-fdir
 ./install.sh
 ```
 
 ## Use the GUI
-Launch the gui via the virtual environment that install.sh created:
+The app should be found in the application launcher. Alternatively, run it by executing this command from the project's root:
 ```
-source python3-venv/bin/activate
-cd src
-python3 analysis_tool_gui.py
+./launch.sh
 ```
-After startup, click `Import Graph` and navigate to one of the example DOT files in the folder benchmarks. 
+
+After startup, click `Import Graph` and navigate to one of the example DOT files in the folder `benchmarks`. 
 
 Click `Analyze Graph` to start the analysis workflow.
 
