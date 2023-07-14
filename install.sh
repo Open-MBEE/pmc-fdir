@@ -18,3 +18,39 @@ tar -zxf prism-4.7-linux64.tar.gz --strip-components=1 -C prism
 cd prism
 ./install.sh
 cd -
+
+# Icons
+ICONPATH="~/.local/share/icons/hicolor/"
+ICONPATH16=${ICONPATH}16x16/apps
+mkdir -p "$ICONPATH16" && cp icons/16x16/pmc-fdir.png "$ICONPATH16"
+ICONPATH32=${ICONPATH}32x32/apps
+mkdir -p "$ICONPATH32" && cp icons/32x32/pmc-fdir.png "$ICONPATH32"
+ICONPATH48=${ICONPATH}48x48/apps
+mkdir -p "$ICONPATH48" && cp icons/48x48/pmc-fdir.png "$ICONPATH48"
+ICONPATH64=${ICONPATH}64x64/apps
+mkdir -p "$ICONPATH64" && cp icons/64x64/pmc-fdir.png "$ICONPATH64"
+ICONPATH96=${ICONPATH}96x96/apps
+mkdir -p "$ICONPATH96" && cp icons/96x96/pmc-fdir.png "$ICONPATH96"
+ICONPATH128=${ICONPATH}128x128/apps
+mkdir -p "$ICONPATH128" && cp icons/128x128/pmc-fdir.png "$ICONPATH128"
+ICONPATH256=${ICONPATH}256x256/apps
+mkdir -p "$ICONPATH256" && cp icons/256x256/pmc-fdir.png "$ICONPATH256"
+ICONPATHSVG=${ICONPATH}scalable/apps
+mkdir -p "$ICONPATHSVG" && cp icons/pmc-fdir.svg "$ICONPATHSVG"
+echo "Moved icons to ${ICONPATH}"
+
+# Desktop shortcut
+LAUNCHERPATH="~/.local/share/applications/"
+mkdir -p "$LAUNCHERPATH"
+SCRIPT=$(realpath "$0")
+SCRIPTPATH=$(dirname "$SCRIPT")
+cat >${LAUNCHERPATH}pmc-fdir.desktop  <<EOL
+[Desktop Entry]
+Name=Probabilistic Model Checking for FDIR
+Comment=FDIR Graph Analysis Tool
+Exec=${SCRIPTPATH}/launch.sh
+Icon=pmc-fdir
+Terminal=true
+Type=Application;
+EOL
+echo "Created desktop shortcut in ${LAUNCHERPATH}"

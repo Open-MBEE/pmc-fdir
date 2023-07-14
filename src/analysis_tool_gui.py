@@ -1025,6 +1025,7 @@ def main():
     window = MainWindow()
     window.set_default_size(1500, 900)
     window.connect('delete-event', Gtk.main_quit)
+    window.set_icon_name("pmc-fdir")
     window.show_all()
 
     Gtk.main()
