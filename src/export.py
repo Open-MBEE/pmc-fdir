@@ -25,6 +25,17 @@ def export_mcts_strategy(graph, data, statistics, parameters):
     return strategy
 
 
+def isolated_completely(statistics, state):
+    j = 0
+    for i in int_to_list(statistics, state):
+        if i == 1:
+            j += 1
+    if j > 1:
+        return False
+    return True
+
+
+
 def export_strategy_graph(mcts_graph, statistics, strategy, filename):
     print("Exporting graph to file:", filename)
     nx.drawing.nx_pydot.write_dot(mcts_graph, filename)
@@ -32,29 +43,80 @@ def export_strategy_graph(mcts_graph, statistics, strategy, filename):
     model_file = open(filename, "w")
     model_file.write("strict digraph {\n")
 
-    for state in mcts_graph.nodes:
-        if state == 0:
-            continue
+    nodes_to_output = []
+    for state in statistics["initial_states"]:
+        nodes_to_output.append(state)
+    nodes_outputted = []
+    while nodes_to_output:
+        state = nodes_to_output[0]
+        nodes_to_output.remove(state)
         if state in strategy.keys():
             action = strategy[state]
             action_name = get_action_name(statistics, action)
             model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [URL=\""
                              + str(int_to_list(statistics, state)) + "\\n" + action_name + "\"];\n")
         else:
-            model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [URL=\""
+            if isolated_completely(statistics, state):
+                model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [style=filled, fillcolor=lightgreen, URL=\""
                              + str(int_to_list(statistics, state)) + "\\n" + "Done" + "\"];\n")
-    for state in mcts_graph.nodes:
+            else:
+                model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [style=filled, fillcolor=lightcoral, "
+                                                                                "URL=\"" + str(int_to_list(statistics, state)) + "\\n" + "Done" + "\"];\n")
+        if not no_possible_successors(statistics, state):
+            successor1, successor2 = find_successors(statistics, state, action)
+            if successor1 not in nodes_outputted:
+                nodes_to_output.append(successor1)
+            if successor2 not in nodes_outputted:
+                nodes_to_output.append(successor2)
+        nodes_outputted.append(state)
+    # for state in mcts_graph.nodes:
+    #     if state == 0:
+    #         continue
+    #     if state in strategy.keys():
+    #         action = strategy[state]
+    #         action_name = get_action_name(statistics, action)
+    #         model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [URL=\""
+    #                          + str(int_to_list(statistics, state)) + "\\n" + action_name + "\"];\n")
+    #     else:
+    #         model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [URL=\""
+    #                          + str(int_to_list(statistics, state)) + "\\n" + "Done" + "\"];\n")
+    nodes_to_output = []
+    for state in statistics["initial_states"]:
+        nodes_to_output.append(state)
+    nodes_outputted = []
+    while nodes_to_output:
+        state = nodes_to_output[0]
+        nodes_to_output.remove(state)
         if state == 0 or no_possible_successors(statistics, state):
             continue
-        action = strategy[state]
-        successor1, successor2 = find_successors(statistics, state, action)
-        action_name = get_action_name(statistics, action)
-        model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\"->\""
-                         + str(int_to_list(statistics, successor1)) + "\" [label=\""
-                         + action_name + " Yes\"];\n")
-        model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\"->\""
+        if state in strategy.keys():
+            action = strategy[state]
+            successor1, successor2 = find_successors(statistics, state, action)
+            action_name = get_action_name(statistics, action)
+            model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\"->\""
+                             + str(int_to_list(statistics, successor1)) + "\" [label=\""
+                             + action_name + " Yes\"];\n")
+            model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\"->\""
                          + str(int_to_list(statistics, successor2)) + "\" [label=\""
                          + action_name + " No\"];\n")
+            if not no_possible_successors(statistics, state):
+                if successor1 not in nodes_outputted:
+                    nodes_to_output.append(successor1)
+                if successor2 not in nodes_outputted:
+                    nodes_to_output.append(successor2)
+        nodes_outputted.append(state)
+    # for state in mcts_graph.nodes:
+    #     if state == 0 or no_possible_successors(statistics, state):
+    #         continue
+    #     action = strategy[state]
+    #     successor1, successor2 = find_successors(statistics, state, action)
+    #     action_name = get_action_name(statistics, action)
+    #     model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\"->\""
+    #                      + str(int_to_list(statistics, successor1)) + "\" [label=\""
+    #                      + action_name + " Yes\"];\n")
+    #     model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\"->\""
+    #                      + str(int_to_list(statistics, successor2)) + "\" [label=\""
+    #                      + action_name + " No\"];\n")
     model_file.write("}\n")
     model_file.close()
 

@@ -138,7 +138,9 @@ def mcts_outer(parameters):
                   "available_actions": {},
                   "name_to_action_mapping": {},
                   "action_to_name_mapping": {},
-                  "int_to_list_mapping": {}}
+                  "int_to_list_mapping": {},
+                  "initial_states": []
+    }
 
     # noinspection PyBroadException
     try:
@@ -160,8 +162,31 @@ def mcts_outer(parameters):
     time.sleep(0.01)
     bar = "----------------------------------------------------------------------------------" \
           "---------"  # 91 columns wide
+
     if parameters["initial_state_file"] != "":
-        state = get_state_from_file(statistics, parameters["initial_state_file"])
+        statistics["initial_states"].append(get_state_from_file(statistics, parameters["initial_state_file"]))
+    else:
+        for state in tqdm(statistics["all_actions"]):
+            statistics["initial_states"].append(state)
+    # if parameters["initial_state_file"] != "":
+    #     state = get_state_from_file(statistics, parameters["initial_state_file"])
+    #     if parameters["debug"]:
+    #         logging.debug(bar)
+    #         logging.debug(bar)
+    #         logging.debug("Initial state: " + str(state) + "\n")
+    #     add_state(mcts_graph, mcts_data, statistics, state)
+    #     add_edge(mcts_graph, root_node, state)
+    #     statistics["nodes_to_explore"].append(state)
+    #     mcts_graph, num_current_round_sim = mcts(mcts_graph, mcts_data, statistics, parameters,
+    #                                              state)
+    #     statistics["total_simulations"] += num_current_round_sim
+    #     statistics["rounds"] += 1
+    #     if parameters["debug"]:
+    #         logging.debug("Total simulations: " + str(statistics["total_simulations"]))
+    #         logging.debug("finished mcts from state: " + str(state))
+    #         logging.debug(bar, "\n\n")
+    # else:
+    for state in statistics["initial_states"]:
         if parameters["debug"]:
             logging.debug(bar)
             logging.debug(bar)
@@ -177,23 +202,6 @@ def mcts_outer(parameters):
             logging.debug("Total simulations: " + str(statistics["total_simulations"]))
             logging.debug("finished mcts from state: " + str(state))
             logging.debug(bar, "\n\n")
-    else:
-        for state in tqdm(statistics["all_actions"]):
-            if parameters["debug"]:
-                logging.debug(bar)
-                logging.debug(bar)
-                logging.debug("Initial state: " + str(state) + "\n")
-            add_state(mcts_graph, mcts_data, statistics, state)
-            add_edge(mcts_graph, root_node, state)
-            statistics["nodes_to_explore"].append(state)
-            mcts_graph, num_current_round_sim = mcts(mcts_graph, mcts_data, statistics, parameters,
-                                                     state)
-            statistics["total_simulations"] += num_current_round_sim
-            statistics["rounds"] += 1
-            if parameters["debug"]:
-                logging.debug("Total simulations: " + str(statistics["total_simulations"]))
-                logging.debug("finished mcts from state: " + str(state))
-                logging.debug(bar, "\n\n")
 
     if parameters["debug"]:
         logging.debug("MCTS data: " + str(mcts_data) + "\n\n")
