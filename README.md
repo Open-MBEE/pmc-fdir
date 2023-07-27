@@ -32,7 +32,7 @@ After startup, click `Import Graph` and navigate to one of the example DOT files
 Click `Analyze Graph` to start the analysis workflow.
 
 ## Convert your system to a graph
-Learn about the graph semantics that our tool understands in our paper [Model Checking for Proving and Improving Fault Tolerance of Satellites](https://ieeexplore.ieee.org/document/10115801) and translate your system into a graph.
+Learn about the graph semantics that our tool understands in our paper [Model Checking for Proving and Improving Fault Tolerance of Satellites](joniskiesbye.de/files/Model_Checking_for_Proving_and_Improving_Fault_Tolerance_of_Satellites_Accepted_Paper.pdf) [(DOI 10.1109/AERO55745.2023.10115801)](https://ieeexplore.ieee.org/document/10115801) and translate your system into a graph.
 A helpful tool for this task is [Qt Visual Graph Editor](https://arsmasiuk.github.io/qvge/) which comes with an option to export DOT files.
 
 ## Requirements
@@ -47,9 +47,11 @@ The authors of this tool are Kush Grover and Jonis Kiesbye,
 the software is released under Apache-2.0 License.
 
 The most notable external projects we are using in this app are:
+
 * [PRISM](https://www.prismmodelchecker.org/)
 * [dtControl](https://dtcontrol.model.in.tum.de/)
 * [NetworkX](https://networkx.org/)
 * [xdot](https://github.com/jrfonseca/xdot.py)
 * [to-precision](https://bitbucket.org/william_rusnack/to-precision/src/master/)
+
 All external packages are listed in `install.sh`
