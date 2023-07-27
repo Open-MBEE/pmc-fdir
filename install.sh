@@ -3,7 +3,7 @@
 # Install required software
 sudo apt update
 sudo apt install git python3 python3-venv python3-pip openjdk-17-jdk xdot
-sudo apt install libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0
+sudo apt install libgirepository1.0-dev gcc libcairo2-dev pkg-config python3-dev gir1.2-gtk-3.0 libgraphviz-dev
 python3 -m venv python3-venv
 source python3-venv/bin/activate
 pip install wheel
@@ -20,7 +20,7 @@ cd prism
 cd -
 
 # Icons
-ICONPATH="~/.local/share/icons/hicolor/"
+ICONPATH="${HOME}/.local/share/icons/hicolor/"
 ICONPATH16=${ICONPATH}16x16/apps
 mkdir -p "$ICONPATH16" && cp icons/16x16/pmc-fdir.png "$ICONPATH16"
 ICONPATH32=${ICONPATH}32x32/apps
@@ -39,18 +39,20 @@ ICONPATHSVG=${ICONPATH}scalable/apps
 mkdir -p "$ICONPATHSVG" && cp icons/pmc-fdir.svg "$ICONPATHSVG"
 echo "Moved icons to ${ICONPATH}"
 
-# Desktop shortcut
-LAUNCHERPATH="~/.local/share/applications/"
+# Launcher shortcut
+LAUNCHERPATH="${HOME}/.local/share/applications/"
 mkdir -p "$LAUNCHERPATH"
 SCRIPT=$(realpath "$0")
 SCRIPTPATH=$(dirname "$SCRIPT")
 cat >${LAUNCHERPATH}pmc-fdir.desktop  <<EOL
 [Desktop Entry]
-Name=Probabilistic Model Checking for FDIR
-Comment=FDIR Graph Analysis Tool
+Encoding=UTF-8
+Name=PMC FDIR
+Comment=Probabilistic Model Checking for FDIR
 Exec=${SCRIPTPATH}/launch.sh
 Icon=pmc-fdir
 Terminal=true
-Type=Application;
+Type=Application
 EOL
-echo "Created desktop shortcut in ${LAUNCHERPATH}"
+chmod +x ${LAUNCHERPATH}pmc-fdir.desktop
+echo "Created launcher shortcut in ${LAUNCHERPATH}"
