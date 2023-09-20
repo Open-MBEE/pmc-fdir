@@ -186,7 +186,7 @@ class MainWindow(Gtk.Window):
 
         self.notebook = Gtk.Notebook()
         # First page, xdot view of the graph
-        self.page1 = xdot.DotWidget()
+        self.page1 = xdot.ui.DotWidget()
         self.notebook.append_page(child=self.page1, tab_label=Gtk.Label(label='Show graph'))
 
         # Second page, enter fault probabilities
@@ -322,7 +322,7 @@ class MainWindow(Gtk.Window):
             self.base_directory,
             ["/bin/sh"],
             None,
-            GLib.SpawnFlags.DO_NOT_REAP_CHILD,
+            GLib.SpawnFlags.DEFAULT,
             None,
             None,
             -1,
@@ -1120,7 +1120,7 @@ def main():
                         level=logging.INFO)
 
     initialize_window()
-    
+
     Gtk.main()
 
     logging.shutdown()
