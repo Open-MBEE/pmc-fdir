@@ -75,8 +75,9 @@ def simulate_a_path(data, statistics, defect):
 
 
 # noinspection DuplicatedCode
-def export_weakness_report(statistics, result):
-    f = open("./temp/weakness_report.txt", "w")
+def export_weakness_report(parameters, statistics, result):
+    print(f"Write report to file {parameters['report_file']}")
+    f = open(parameters["report_file"], "w")
     f.write("Mode configuration:\tAverage cost\t:\tNumber of simulations\n")
     for mode in result:
         f.write(get_action_name(statistics, mode) + ":\t" + str(result[mode][0] / result[mode][1])
@@ -85,7 +86,7 @@ def export_weakness_report(statistics, result):
 
 
 # noinspection DuplicatedCode
-def evaluate_mcts_strategy(data, statistics):
+def evaluate_mcts_strategy(parameters, data, statistics):
     max_num_simulations = 100000
     total_cost = 0
     defects = []
@@ -104,4 +105,4 @@ def evaluate_mcts_strategy(data, statistics):
         total_cost += cost
     print("done")
     print("Average cost for", max_num_simulations, "faults:", total_cost / max_num_simulations)
-    export_weakness_report(statistics, result)
+    export_weakness_report(parameters, statistics, result)

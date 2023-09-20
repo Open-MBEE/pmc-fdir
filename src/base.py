@@ -35,7 +35,10 @@ def get_configuration_all_modes(statistics, parameters):
     all_modes = [get_node_name(dependency_graph, n) for n in find_root_nodes(dependency_graph)]
     statistics["all_equipments"] = all_equipment_names
     statistics["number_of_equipments"] = len(all_equipment_names)
-    statistics["all_modes"] = all_modes
+    if parameters["initial_state_file"]:
+        statistics["all_modes"] = ["initial_state"]
+    else:
+        statistics["all_modes"] = all_modes
 
     all_actions, all_list_actions, all_actions_cost, action_to_name_mapping, \
         name_to_action_mapping = get_all_actions(dependency_graph,

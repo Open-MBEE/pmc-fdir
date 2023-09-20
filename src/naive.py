@@ -42,7 +42,7 @@ def simulate_a_path(statistics, defect):
 
 # noinspection DuplicatedCode
 def evaluate_naive(statistics):
-    max_num_simulations = 100000
+    max_num_simulations = 10000
     total_cost = 0
     defects = []
     print("\nStarting evaluation of naive strategy...")

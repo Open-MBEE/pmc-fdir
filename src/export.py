@@ -18,8 +18,8 @@ def export_mcts_strategy(graph, data, statistics, parameters):
         if node == 0:
             continue
         action = pick_best_available_action(data, statistics, node)
-        strategy[node] = action
         if action != 0:
+            strategy[node] = action
             f.write(str(node) + " : " + str(action) + "\n")
     f.close()
     return strategy
@@ -33,7 +33,6 @@ def isolated_completely(statistics, state):
     if j > 1:
         return False
     return True
-
 
 
 def export_strategy_graph(mcts_graph, statistics, strategy, filename):
@@ -61,7 +60,7 @@ def export_strategy_graph(mcts_graph, statistics, strategy, filename):
                              + str(int_to_list(statistics, state)) + "\\n" + "Done" + "\"];\n")
             else:
                 model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [style=filled, fillcolor=lightcoral, "
-                                                                                "URL=\"" + str(int_to_list(statistics, state)) + "\\n" + "Done" + "\"];\n")
+                                                                                "URL=\"" + str(int_to_list(statistics, state)) + "\\n" + "Deadlock" + "\"];\n")
         if not no_possible_successors(statistics, state):
             successor1, successor2 = find_successors(statistics, state, action)
             if successor1 not in nodes_outputted:
@@ -174,9 +173,9 @@ def get_state_from_file(statistics, filename):
     return list_to_int(statistics, state)
 
 
-def export_prism_file(mcts_graph, parameters, statistics, filename):
+def export_prism_file(mcts_graph, parameters, statistics):
     # initial stuff
-    model_file = open(filename + ".prism", "w")
+    model_file = open(parameters["prism_model"], "w")
     model_file.write("mdp\n\n")
     model_file.write("module mcts\n\n")
     state_to_prism_state_mapping = {}
@@ -257,7 +256,7 @@ def export_prism_file(mcts_graph, parameters, statistics, filename):
     model_file.close()
 
     # property
-    prop_file = open(filename + ".props", "w")
+    prop_file = open(parameters["props_file"], "w")
     prop_file.write("Rmin=? [ F \"final\" ]")
     prop_file.close()
 

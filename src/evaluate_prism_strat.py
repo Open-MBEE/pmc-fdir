@@ -47,9 +47,8 @@ def evaluate_strategy(statistics, strategy):
     return result
 
 
-def export_state_values(statistics, prism_state_to_state_mapping):
-    path_of_src = str(pathlib.Path(__file__).parent.parent.resolve())
-    f = open(path_of_src + "/temp/prism_strategy_states.prism", 'w')
+def export_state_values(parameters, statistics, prism_state_to_state_mapping):
+    f = open(parameters["strategy_file"].split(".")[0] + "_states.prism", 'w')
     f.write("(")
     for i in range(len(statistics["all_equipments"])):
         f.write(statistics["all_equipments"][i])
@@ -72,22 +71,27 @@ def export_state_values(statistics, prism_state_to_state_mapping):
 
 def generate_prism_strat(parameters, statistics, prism_state_to_state_mapping):
     path_of_prism = str(pathlib.Path(__file__).parent.parent.resolve())
-    path_of_src = str(pathlib.Path(__file__).parent.parent.resolve())
-    command = path_of_prism + "/prism/bin/prism " + path_of_src + "/temp/model.prism " \
-              + path_of_src + "/temp/model.props -prop 1 -explicit -exportstrat " \
-              + path_of_src + "/temp/prism_strategy.prism -exportstates " \
-              + path_of_src + "/temp/prism_strategy_states.prism -javamaxmem 4g > " \
-              + path_of_src + "/temp/prism_output.txt"
+    # Adjust the -javamaxmem argument to your PC's specs. Using ~60% by default
+    mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+    mem_max = f"{int(0.6 * mem_bytes / (1024. ** 3))}g"
+    # mem_max = "8g"  # uncomment to manually set the maximum memory of PRISM
+
+    command = (f"{path_of_prism}/prism/bin/prism {parameters['prism_model']} "
+               f"{parameters['props_file']} -prop 1 -explicit "
+               f"-exportstrat {parameters['strategy_file']} "
+               f"-exportstates {parameters['strategy_file'].split('.')[0]}_states_temp.prism "
+               f"-javamaxmem {mem_max} > {parameters['prism_output']}")
     os.system(command)
-    state_file = open(path_of_src + "/temp/prism_strategy_states.prism", "r")
+    state_file = open(parameters["strategy_file"].split(".")[0] + "_states_temp.prism", "r")
     state_file.readline()
     output_state_to_prism_state = {}
     for line in state_file:
         x = re.search(r"(\d*):\((\d*)\)", line)
         output_state_to_prism_state[int(x.groups()[0])] = int(x.groups()[1])
     state_file.close()
+    os.remove(parameters["strategy_file"].split(".")[0] + "_states_temp.prism")
 
-    strategy_file = open(path_of_src + "/temp/prism_strategy.prism", "r")
+    strategy_file = open(parameters["strategy_file"], "r")
     strategy = {}
     for line in strategy_file:
         x = re.search(r"(\d*):(.*)", line)
@@ -101,9 +105,7 @@ def generate_prism_strat(parameters, statistics, prism_state_to_state_mapping):
     return strategy, output_state_to_prism_state
 
 
-def evaluate_prism_strategy(parameters, statistics, prism_state_to_state_mapping, strategy):
-    export_state_values(statistics, prism_state_to_state_mapping)
-
+def evaluate_prism_strategy(parameters, statistics, strategy):
     if parameters["initial_state_file"] == "":
         result = evaluate_strategy(statistics, strategy)
-        export_weakness_report(statistics, result)
+        export_weakness_report(parameters, statistics, result)

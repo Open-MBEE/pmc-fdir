@@ -260,6 +260,15 @@ def arguments(parameters):
     my_parser.add_argument('--initialstatefile',
                            action='store',
                            help='give initial state as input')
+    my_parser.add_argument('--strategyfile',
+                           action='store',
+                           help='name of strategy file')
+    my_parser.add_argument('--reportfile',
+                           action='store',
+                           help='name of strategy report')
+    my_parser.add_argument('--dotfile',
+                           action='store',
+                           help='name of output dot graph')
 
     args = my_parser.parse_args()
 
@@ -279,8 +288,6 @@ def arguments(parameters):
         parameters["sampling_type"] = args.samplingtype
 
     if args.outputdir is not None:
-        parameters["strategy_file"] = args.outputdir + "/strategy.txt"
-        parameters["output_dot_file"] = args.outputdir + "/mcts_graph.dot"
         if not os.path.isdir(args.outputdir):
             os.mkdir(args.outputdir)
     elif not os.path.exists('temp'):
@@ -299,12 +306,33 @@ def arguments(parameters):
     else:
         parameters["initial_state_file"] = ""
 
+    if args.strategyfile is not None:
+        parameters["strategy_file"] = args.strategyfile
+    elif args.outputdir is not None:
+        parameters["strategy_file"] = args.outputdir + "/strategy.prism"
+
+    if args.dotfile is not None:
+        parameters["output_dot_file"] = args.dotfile
+    elif args.outputdir is not None:
+        parameters["output_dot_file"] = args.outputdir + "/graph.dot"
+
+    if args.reportfile is not None:
+        parameters["report_file"] = args.reportfile
+    else:
+        parameters["report_file"] = args.outputdir + "/strategy_report.txt"
+
     if not os.path.isfile(parameters["input_file"])\
             or not os.path.isfile(parameters["cost_file"]) \
             or not os.path.isfile(parameters["equipment_fail_probabilities_file"]):
         print('Input file(s) does not exist')
         sys.exit()
 
+    suffix = f'{parameters["successors_to_keep"]}-successors_' \
+             + f'simulationsize-{parameters["simulations_for_each_children"]}'
+    model_name = f'{os.path.split(parameters["input_file"])[-1].split(".")[0]}_{suffix}'
+    parameters["prism_model"] = os.path.join(args.outputdir, f'{model_name}.prism')
+    parameters["props_file"] = os.path.join(args.outputdir, f'{model_name}.props')
+    parameters["prism_output"] = os.path.join(args.outputdir, f'{model_name}_prism_output.txt')
 
 # noinspection DuplicatedCode
 def parse_cost(statistics, parameters):
@@ -347,8 +375,8 @@ def main():
                   "sampling_type": 0,
                   "debug": False,
                   "output_graph": True,
-                  "output_dot_file": path_of_src + "/temp/mcts_graph.dot",
-                  "strategy_file": path_of_src + "temp/strategy.txt"}
+                  "output_dot_file": "",
+                  "strategy_file": ""}
 
     # process arguments
     arguments(parameters)
@@ -365,7 +393,8 @@ def main():
     strategy = {}
     if parameters["mcts_strategy"]:
         strategy = export_mcts_strategy(graph, data, stats, parameters)
-        evaluate_mcts_strategy(data, stats)
+        if not parameters["initial_state_file"]:
+            evaluate_mcts_strategy(parameters, data, stats)
     if parameters["evaluate_naive"]:
         evaluate_naive(stats)
 
@@ -377,18 +406,16 @@ def main():
     start_time_prism = 0
     end_time_prism = 0
     if not parameters["mcts_strategy"]:
-        prism_filename = path_of_src + "/temp/model"
         start_time_prism = time.time()
-        prism_state_to_state_mapping = export_prism_file(graph, parameters, stats, prism_filename)
+        prism_state_to_state_mapping = export_prism_file(graph, parameters, stats)
         end_time_prism = time.time()
+        evaluate_prism_strat.export_state_values(parameters, stats, prism_state_to_state_mapping)
         strategy, output_state_to_prism_state = \
             evaluate_prism_strat.generate_prism_strat(parameters,
                                                       stats,
                                                       prism_state_to_state_mapping)
-        evaluate_prism_strat.evaluate_prism_strategy(parameters,
-                                                     stats,
-                                                     prism_state_to_state_mapping,
-                                                     strategy)
+        if not parameters["initial_state_file"]:
+            evaluate_prism_strat.evaluate_prism_strategy(parameters, stats, strategy)
 
     # Exporting stuff
     if parameters["output_graph"]:

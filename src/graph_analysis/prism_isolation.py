@@ -135,7 +135,7 @@ def get_assembly_name(graph, node):
     # get the name of the predecessor because this indicates the function of the assembly
     assembly_name = get_node_name(graph, list(graph.predecessors(node))[0])
     # an example name would be e.g. reaction_wheels_>=3
-    return assembly_name + f"_{get_node_name(graph, node).strip('>=')}"
+    return f"{assembly_name}_{get_node_name(graph, node).strip('>=')}"
 
 
 def get_action(G,
@@ -169,7 +169,7 @@ def get_action(G,
         action_string += f"_{'_'.join(configuration_numbers)}"
         variable_handler.add_configuration(root_node, '_'.join(configuration_numbers))
         action_string += "] "
-        cost_strings += action_string + f"true: {mode_costs[get_node_name(G, root_node)]};\n"
+        cost_strings += f"{action_string}true: {mode_costs[get_node_name(G, root_node)]};\n"
         # guard
         guards = []
         # configuration
@@ -275,16 +275,14 @@ def generate_prism_model(base_directory,
                          mode_costs,
                          hidden_variable,
                          debug=False):
-    trimmed_filename = filename.split('/')[-1].split('.')[0]
-    work_directory = base_directory + "temp/"
-
-    if not os.path.exists(work_directory):
-        os.makedirs(work_directory)
+    trimmed_filename = os.path.split(filename)[-1].split('.')[0]
+    work_directory = os.path.split(filename)[0]
 
     if debug:
-        prism_filename = f"{work_directory + trimmed_filename}_debug.prism"
+        prism_filename = f"{os.path.join(work_directory, trimmed_filename)}_debug.prism"
     else:
-        prism_filename = f"{work_directory + trimmed_filename}.prism"
+        prism_filename = f"{os.path.join(work_directory, trimmed_filename)}.prism"
+    logging.info(f"Generating prism model {prism_filename}")
 
     with open(prism_filename, 'w') as prism_file:
         variable_handler = VariableHandler()
@@ -354,15 +352,15 @@ def get_configuration_index(G,
 
 
 def generate_props(base_directory, filename, all_equipment):
-    trimmed_filename = filename.split('/')[-1].split('.')[0]
-    work_directory = base_directory + "temp/"
-    with open(f"{work_directory + trimmed_filename}.props", 'w') as props_file:
+    trimmed_filename = os.path.split(filename)[-1].split('.')[0]
+    work_directory = os.path.split(filename)[0]
+    with open(f"{os.path.join(work_directory, trimmed_filename)}.props", 'w') as props_file:
         for component in all_equipment:
             print(f"\"{component}\": Rmin=? [ F \"isolation_complete_{component}\" ]",
                   file=props_file)
         print(f"\"any\": Rmin=? [ F \"isolation_complete\" ]", file=props_file)
         print(f"\"sparse\": Pmax=? [F \"isolation_complete\"]", file=props_file)
-    logging.info(f"Generated props file {work_directory + trimmed_filename}.props")
+    logging.info(f"Generated props file {os.path.join(work_directory, trimmed_filename)}.props")
 
 
 def run_prism(base_directory, filename, all_equipment, components="all"):
@@ -385,16 +383,23 @@ def run_prism(base_directory, filename, all_equipment, components="all"):
 
 
 def run_prism_helper(base_directory, filename, component):
-    trimmed_filename = filename.split('/')[-1].split('.')[0]
-    work_directory = base_directory + "temp/"
+    trimmed_filename = os.path.split(filename)[-1].split('.')[0]
+    work_directory = os.path.split(filename)[0]
     prism_path = "prism/bin/prism"
     pattern = r'Result: \S*'
-    args = f"{base_directory + prism_path} {work_directory + trimmed_filename}.prism " \
-           f"{work_directory + trimmed_filename}.props -prop {component} -explicit -javamaxmem 50g"
+    # Adjust the -javamaxmem argument to your PC's specs. Using ~60% by default
+    mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
+    mem_max = f"{int(0.6 * mem_bytes / (1024. ** 3))}g"
+    # mem_max = "8g"  # uncomment to manually set the maximum memory of PRISM
+
+    args = f"{os.path.join(base_directory, prism_path)} " \
+           f"{os.path.join(work_directory, trimmed_filename)}.prism " \
+           f"{os.path.join(work_directory, trimmed_filename)}.props -prop {component} -explicit " \
+           f"-javamaxmem {mem_max}"
     logging.info(f"Command: prism {trimmed_filename}.prism {trimmed_filename}.props "
-                 f"-prop {component} -explicit -javamaxmem 50g")
+                 f"-prop {component} -explicit -javamaxmem {mem_max}")
     result = subprocess.run(args.split(" "), stdout=subprocess.PIPE, text=True)
-    with open(f"{work_directory + trimmed_filename}_{component}_result.txt", 'w') as result_file:
+    with open(f"{os.path.join(work_directory, trimmed_filename)}_{component}_result.txt", 'w') as result_file:
         result_file.write(result.stdout)
     prism_result = re.findall(pattern, result.stdout)
     if prism_result:

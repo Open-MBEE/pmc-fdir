@@ -36,6 +36,8 @@ class InfoDialog(Gtk.Dialog):
         if mode_and_configuration == 'Done':
             headers = ['component', 'value']
             isolated_component = all_equipment[values.index('1')]
+        elif mode_and_configuration == 'Deadlock':
+            headers = ['component', 'value']
         else:
             mode = mode_and_configuration.split('_')[0]
             mode_id = get_node_id(nx_graph, mode)
@@ -49,7 +51,7 @@ class InfoDialog(Gtk.Dialog):
                 value_string = 'suspicious'
             else:
                 value_string = 'available'
-            if not mode_and_configuration == 'Done':
+            if mode_and_configuration != 'Done' and mode_and_configuration != 'Deadlock':
                 if component in used_components:
                     usage = 'used'
                 else:
@@ -62,6 +64,8 @@ class InfoDialog(Gtk.Dialog):
 
         if mode_and_configuration == 'Done':
             description += f"Component {isolated_component} isolated."
+        elif mode_and_configuration == 'Deadlock':
+            description += f"Deadlock. No further isolation possible from here."
         else:
             description += f"Mode {mode} in configuration "
             description += f"{configuration_index} uses the components "
