@@ -1,0 +1,829 @@
+digraph "robot_sat_v7"
+{
+
+bgcolor = "#ffffff"
+
+node [
+class = "node"
+,fillcolor = "#ff00ff",style = "filled"
+,width = "0.152778",height = "0.152778"
+,shape = "ellipse"
+,color = "#000000"
+,penwidth = "1"
+,"_vis_" = "label"
+];
+
+
+"N34" [
+pos = "14.2361,-2.77778!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "mppt_2_itself"
+]
+
+"N74" [
+pos = "4.16667,3.47222!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "RECORD_POWER_DATA
+power_log=recorded"
+]
+
+"N33" [
+pos = "-4.51389,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "experiment"
+]
+
+"N23" [
+pos = "6.25,0.694444!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "soc=high"
+]
+
+"N28" [
+pos = "14.9306,-2.08333!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "array_2"
+]
+
+"N30" [
+pos = "-3.47222,0.694444!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "target_mass"
+]
+
+"N45" [
+pos = "13.1944,-0.347222!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "OR"
+]
+
+"N32" [
+pos = "-1.73611,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "TRACK_OBJECT
+target=detected"
+]
+
+"N6" [
+pos = "14.5833,0.694444!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "generate_power"
+]
+
+"N63" [
+pos = "10.7639,2.43056!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "power_log=recorded"
+]
+
+"N12" [
+pos = "8.33333,3.47222!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "MC_ASSESS_ARRAY"
+]
+
+"N25" [
+pos = "14.5833,-0.347222!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "OR"
+]
+
+"N37" [
+pos = "-3.47222,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "STORE_OBJECT
+target=stored"
+]
+
+"N54" [
+pos = "10.7639,3.47222!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "MC_ASSESS_MPPT"
+]
+
+"N7" [
+pos = "7.29167,-4.86111!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "OR"
+]
+
+"N3" [
+pos = "-2.08333,-2.08333!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "robot_itself"
+]
+
+"N13" [
+pos = "8.33333,2.43056!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "picture=taken"
+]
+
+"N41" [
+pos = "1.73611,-2.77778!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "OR"
+]
+
+"N38" [
+pos = "-5.90278,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "RELEASE_OBJECT
+target=floating"
+]
+
+"N56" [
+pos = "14.5833,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "GENERATE_POWER"
+]
+
+"N2" [
+pos = "-2.08333,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "robot"
+]
+
+"N79" [
+pos = "5.55556,-2.08333!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "adcs_redundant_itself"
+]
+
+"N15" [
+pos = "4.51389,0.694444!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "adcs"
+]
+
+"N5" [
+pos = "1.38889,3.47222!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "TAKE_PICTURE_OF_ARRAY
+picture=taken"
+]
+
+"N46" [
+pos = "13.1944,0.694444!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "array"
+]
+
+"N20" [
+pos = "0.694444,-4.51389!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "regulator_1_itself"
+]
+
+"N73" [
+pos = "10.7639,-2.08333!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "com_redundant_itself"
+]
+
+"N62" [
+pos = "12.1528,-2.77778!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "mppt_1_itself"
+]
+
+"N35" [
+pos = "-5.20833,-2.08333!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "soc=high"
+]
+
+"N10" [
+pos = "0,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "camera"
+]
+
+"N27" [
+pos = "14.2361,-1.73611!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "mppt_2"
+]
+
+"N75" [
+pos = "4.51389,-0.347222!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "OR"
+]
+
+"N24" [
+pos = "12.5,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "generator_1"
+]
+
+"N39" [
+pos = "-5.90278,0.694444!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "target=stored | target=grasped"
+]
+
+"N11" [
+pos = "1.38889,2.43056!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "robot=inspect_array_pose"
+]
+
+"N61" [
+pos = "10.7639,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "com_redundant"
+]
+
+"N9" [
+pos = "6.59722,-5.55556!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "battery_1"
+]
+
+"N26" [
+pos = "14.5833,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "generator_2"
+]
+
+"N18" [
+pos = "7.29167,-4.16667!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "battery"
+]
+
+"N22" [
+pos = "9.72222,-0.347222!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "OR"
+]
+
+"N31" [
+pos = "7.98611,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "SUN_TRACKING
+soc=high"
+]
+
+"N47" [
+pos = "4.51389,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "DETUMBLING
+ang_velocity=low"
+]
+
+"N1" [
+pos = "-2.08333,3.47222!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "MOVE_TO_INSPECT_ARRAY_POSE
+robot=inspect_array_pose"
+]
+
+"N40" [
+pos = "0,-2.08333!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "camera_itself"
+]
+
+"N48" [
+pos = "12.1528,0.694444!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "mppt"
+]
+
+"N42" [
+pos = "0.694444,-3.47222!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "regulator_1"
+]
+
+"N8" [
+pos = "1.73611,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "SUPPLY_SYSTEMS"
+]
+
+"N36" [
+pos = "-3.81944,-2.08333!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "target=floating"
+]
+
+"N4" [
+pos = "1.73611,-2.08333!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "regulator"
+]
+
+"N77" [
+pos = "5.55556,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "adcs_redundant"
+]
+
+"N78" [
+pos = "3.47222,-2.08333!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "adcs_nominal_itself"
+]
+
+"N76" [
+pos = "3.47222,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "adcs_nominal"
+]
+
+"N53" [
+pos = "6.25,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "DOWNLINK_DATA"
+]
+
+"N14" [
+pos = "9.72222,0.694444!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "com"
+]
+
+"N72" [
+pos = "8.68056,-2.08333!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "com_nominal_itself"
+]
+
+"N29" [
+pos = "0,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "GRASP_OBJECT
+target=grasped"
+]
+
+"N44" [
+pos = "2.77778,-4.51389!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "regulator_2_itself"
+]
+
+"N21" [
+pos = "7.98611,0.694444!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "ang_velocity=low"
+]
+
+"N19" [
+pos = "7.98611,-5.55556!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "battery_2"
+]
+
+"N43" [
+pos = "2.77778,-3.47222!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "regulator_2"
+]
+
+"N17" [
+pos = "12.1528,-1.73611!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "mppt_1"
+]
+
+"N60" [
+pos = "8.68056,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "com_nominal"
+]
+
+"N55" [
+pos = "9.72222,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "COMMANDING"
+]
+
+"N49" [
+pos = "12.1528,-0.347222!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "OR"
+]
+
+"N16" [
+pos = "12.8472,-2.08333!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "array_1"
+]
+
+
+
+edge [
+class = "edge"
+,weight = "1"
+,penwidth = "1"
+,"_vis_" = "label"
+,"color" = "#a0a0a4"
+,"style" = "solid"
+];
+
+
+"N75" -> "N77" [id = "E98"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N8" -> "N4" [id = "E16"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N37" -> "N30" [id = "E42"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N29" -> "N2" [id = "E32"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N26" -> "N28" [id = "E54"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N10" -> "N40" [id = "E45"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N15" [id = "E65"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N46" -> "N45" [id = "E12"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N24" -> "N17" [id = "E4"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N43" -> "N44" [id = "E49"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N31" -> "N21" [id = "E26"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N21" [id = "E27"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N26" -> "N27" [id = "E52"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N1" -> "N2" [id = "E1"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N7" -> "N9" [id = "E19"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N24" -> "N16" [id = "E13"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N14" -> "N22" [id = "E24"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N61" -> "N73" [id = "E93"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N5" -> "N10" [id = "E6"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N5" -> "N11" [id = "E7"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N76" -> "N4" [id = "E99"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N32" -> "N30" [id = "E35"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N17" -> "N18" [id = "E10"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N12" -> "N15" [id = "E11"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N2" -> "N4" [id = "E3"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N7" -> "N19" [id = "E20"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N22" -> "N61" [id = "E53"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N29" -> "N33" [id = "E38"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N31" -> "N6" [id = "E25"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N41" -> "N43" [id = "E48"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N23" [id = "E28"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N45" -> "N16" [id = "E57"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N60" -> "N18" [id = "E90"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N38" -> "N30" [id = "E43"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N49" -> "N17" [id = "E61"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N14" [id = "E64"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N74" -> "N4" [id = "E97"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N75" -> "N76" [id = "E73"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N42" -> "N18" [id = "E51"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N60" -> "N72" [id = "E92"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N54" -> "N14" [id = "E95"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N27" -> "N34" [id = "E55"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N32" -> "N33" [id = "E37"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N61" -> "N18" [id = "E91"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N18" -> "N7" [id = "E18"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N12" -> "N46" [id = "E58"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N38" -> "N39" [id = "E44"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N25" -> "N26" [id = "E39"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N76" -> "N78" [id = "E101"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N55" -> "N14" [id = "E68"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N29" -> "N10" [id = "E34"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N31" -> "N15" [id = "E36"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N4" -> "N41" [id = "E47"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N33" -> "N36" [id = "E41"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N8" -> "N18" [id = "E5"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N77" -> "N4" [id = "E100"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N49" -> "N27" [id = "E62"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N25" -> "N24" [id = "E30"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N22" -> "N60" [id = "E46"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N10" -> "N4" [id = "E21"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N54" -> "N48" [id = "E59"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N45" -> "N28" [id = "E56"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N47" -> "N15" [id = "E23"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N12" -> "N13" [id = "E8"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N32" -> "N10" [id = "E33"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N42" -> "N20" [id = "E50"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N77" -> "N79" [id = "E102"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N15" -> "N75" [id = "E17"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N56" -> "N6" [id = "E69"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N29" -> "N30" [id = "E31"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N17" -> "N62" [id = "E94"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N54" -> "N63" [id = "E96"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N41" -> "N42" [id = "E22"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N2" -> "N3" [id = "E2"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N27" -> "N18" [id = "E14"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N12" -> "N14" [id = "E9"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N48" -> "N49" [id = "E60"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N33" -> "N35" [id = "E40"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N6" -> "N25" [id = "E29"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N43" -> "N18" [id = "E15"
+,weight = "2"
+,penwidth = "2"
+];
+
+
+}

@@ -1,0 +1,294 @@
+digraph "robot_sat_v3"
+{
+
+bgcolor = "#ffffff"
+
+node [
+class = "node"
+,fillcolor = "#ff00ff",style = "filled"
+,width = "0.152778",height = "0.152778"
+,shape = "ellipse"
+,color = "#000000"
+,penwidth = "1"
+,"_vis_" = "label"
+];
+
+
+"N36" [
+pos = "-3.81944,-2.08333!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "target=floating"
+]
+
+"N55" [
+pos = "6.94444,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "COMMANDING"
+]
+
+"N2" [
+pos = "-2.08333,-1.04167!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "robot"
+]
+
+"N37" [
+pos = "-3.47222,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "STORE_OBJECT
+target=stored"
+]
+
+"N35" [
+pos = "-5.20833,-2.08333!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "soc=high"
+]
+
+"N33" [
+pos = "-4.51389,-1.04167!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "experiment"
+]
+
+"N14" [
+pos = "6.94444,0.694444!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "com"
+]
+
+"N31" [
+pos = "5.20833,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "SUN_TRACKING
+soc=high"
+]
+
+"N53" [
+pos = "3.47222,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "DOWNLINK_DATA"
+]
+
+"N6" [
+pos = "9.02778,0.694444!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "generator"
+]
+
+"N10" [
+pos = "0,-1.04167!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "camera"
+]
+
+"N16" [
+pos = "9.375,-0.347222!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "array"
+]
+
+"N29" [
+pos = "0,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "GRASP_OBJECT
+target=grasped"
+]
+
+"N56" [
+pos = "9.02778,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "GENERATE_POWER"
+]
+
+"N17" [
+pos = "8.68056,0!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "mppt"
+]
+
+"N23" [
+pos = "3.47222,0.694444!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "soc=high"
+]
+
+"N39" [
+pos = "-5.90278,0.694444!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "target=stored | target=grasped"
+]
+
+"N38" [
+pos = "-5.90278,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "RELEASE_OBJECT
+target=floating"
+]
+
+"N15" [
+pos = "1.73611,0.694444!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "adcs"
+]
+
+"N47" [
+pos = "1.73611,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "DETUMBLING
+ang_velocity=low"
+]
+
+"N32" [
+pos = "-1.73611,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "TRACK_OBJECT
+target=detected"
+]
+
+"N30" [
+pos = "-3.47222,0.694444!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "target_mass"
+]
+
+"N21" [
+pos = "5.20833,0.694444!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "ang_velocity=low"
+]
+
+
+
+edge [
+class = "edge"
+,weight = "1"
+,penwidth = "1"
+,"_vis_" = "label"
+,"color" = "#a0a0a4"
+,"style" = "solid"
+];
+
+
+"N31" -> "N15" [id = "E36"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N29" -> "N30" [id = "E31"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N6" -> "N17" [id = "E4"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N21" [id = "E27"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N29" -> "N2" [id = "E32"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N33" -> "N36" [id = "E41"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N15" [id = "E65"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N31" -> "N6" [id = "E25"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N32" -> "N30" [id = "E35"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N47" -> "N15" [id = "E23"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N55" -> "N14" [id = "E68"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N33" -> "N35" [id = "E40"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N38" -> "N39" [id = "E44"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N29" -> "N10" [id = "E34"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N29" -> "N33" [id = "E38"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N32" -> "N10" [id = "E33"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N38" -> "N30" [id = "E43"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N56" -> "N6" [id = "E69"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N32" -> "N33" [id = "E37"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N23" [id = "E28"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N14" [id = "E64"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N31" -> "N21" [id = "E26"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N37" -> "N30" [id = "E42"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N6" -> "N16" [id = "E9"
+,weight = "2"
+,penwidth = "2"
+];
+
+
+}

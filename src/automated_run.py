@@ -18,31 +18,47 @@ from analysis_tool_gui import initialize_window
 import logging
 import os
 import time
+import json
 from datetime import datetime
 from collections import namedtuple
 
 log_to_file = True
 benchmark_folder = "benchmarks"
-Benchmark = namedtuple('Benchmark', 'name n_faults includeMCTS includePrism')
-benchmarks = [Benchmark('space_tug_ver1', 2, False, False),
-              Benchmark('space_tug_ver1', 1, True, True),
-              Benchmark('space_tug_ver2', 2, False, False),
-              Benchmark('space_tug_ver2', 1, True, True),
-              Benchmark('space_tug_ver3', 2, False, False),
-              Benchmark('space_tug_ver3', 1, True, True),
-              Benchmark('space_tug_ver4', 2, False, False),
-              Benchmark('space_tug_ver4', 1, True, True),
-              Benchmark('space_tug_ver5', 2, False, False),
-              Benchmark('space_tug_ver5', 1, True, True),
-              Benchmark('space_tug_ver6', 2, False, False),
-              Benchmark('space_tug_ver6', 1, True, True),
-              Benchmark('space_tug_ver7', 2, False, False),
-              Benchmark('space_tug_ver7', 1, True, True),
-              Benchmark('space_tug_ver8', 2, False, False),
-              Benchmark('space_tug_ver8', 1, False, False),
-              Benchmark('space_tug_ver9', 2, False, False),
-              Benchmark('space_tug_ver9', 1, False, False)
+Benchmark = namedtuple('Benchmark',
+                       'name n_faults includeMCTS includePrism engines')
+benchmarks = [Benchmark('space_tug_ver1', 2, False, False, []),
+              Benchmark('space_tug_ver1', 1, True, True, ["explicit", "sparse"]),
+              Benchmark('space_tug_ver2', 2, False, False, []),
+              Benchmark('space_tug_ver2', 1, True, True, ["explicit", "sparse"]),
+              Benchmark('space_tug_ver3', 2, False, False, []),
+              Benchmark('space_tug_ver3', 1, True, True, ["explicit", "sparse"]),
+              Benchmark('space_tug_ver4', 2, False, False, []),
+              Benchmark('space_tug_ver4', 1, True, True, ["explicit", "sparse"]),
+              Benchmark('space_tug_ver5', 2, False, False, []),
+              Benchmark('space_tug_ver5', 1, True, True, ["explicit", "sparse"]),
+              Benchmark('space_tug_ver6', 2, False, False, []),
+              Benchmark('space_tug_ver6', 1, True, True, ["explicit", "sparse"]),
+              Benchmark('space_tug_ver7', 2, False, False, []),
+              Benchmark('space_tug_ver7', 1, True, True, ["explicit", "sparse"]),
+              Benchmark('space_tug_ver8', 2, False, False, []),
+              Benchmark('space_tug_ver8', 1, False, False, []),
+              Benchmark('space_tug_ver9', 2, False, False, []),
+              Benchmark('space_tug_ver9', 1, False, False, [])
               ]
+# benchmarks = [Benchmark('robot_sat_v1', 1, False, True, ["explicit", "sparse"]),
+#               Benchmark('robot_sat_v2', 1, False, True, ["explicit", "sparse"]),
+#               Benchmark('robot_sat_v3', 1, False, True, ["explicit", "sparse"]),
+#               Benchmark('robot_sat_v4', 1, False, True, ["explicit", "sparse"]),
+#               Benchmark('robot_sat_v5', 1, False, True, ["explicit", "sparse"]),
+#               Benchmark('robot_sat_v6', 1, False, True, ["explicit", "sparse"]),
+#               Benchmark('robot_sat_v7', 1, False, True, ["explicit", "sparse"])
+#               ]
+#
+benchmarks = [#Benchmark('space_tug_ver8', 1, False, True, ["explicit", "sparse"]),
+              Benchmark('space_tug_ver9', 1, False, True, ["explicit", "sparse"])
+              ]
+#
+# benchmarks = [Benchmark('planning_example', 1, False, True, ["explicit", "sparse"])]
 
 
 def main():
@@ -125,12 +141,56 @@ def main():
             window.export_isolation(None)
 
             # Check prism model
-            window.run_isolation(None)
+            for engine in benchmark.engines:
+                print(f"\t{engine=}")
+                window.run_isolation(None, engine=engine)
 
         # Save weakness report
         window.write_report(None)
         logging.info(f"The analysis for file {window.filename} took "
                      f"{time.time() - start_time_benchmark} s.")
+
+        # Save variables as JSON
+        json_filename = os.path.join(window.base_directory,
+                                     benchmark_path,
+                                     'output',
+                                     f'{benchmark.name}.json')
+        with open(json_filename, 'w') as json_file:
+            json.dump({"benchmark_name": benchmark.name,
+                       "benchmark_n_faults": benchmark.n_faults,
+                       "benchmark_includeMCTS": benchmark.includeMCTS,
+                       "benchmark_includePrism": benchmark.includePrism,
+                       "filename": window.filename,
+
+                       "isolable": window.isolable,
+                       "non_isolable": window.non_isolable,
+                       # "missing_components": window.missing_components,
+                       "engines": benchmark.engines,
+                       "best_isolation_cost": window.best_isolation_cost,
+                       "worst_isolation_cost": window.worst_isolation_cost,
+
+                       "recoverable": window.recoverable,
+                       "non_recoverable": window.non_recoverable,
+                       "single_string_components": window.single_string_components,
+                       "recovery_cost": window.recovery_cost,
+
+                       "all_equipment": window.all_equipment,
+                       # "unique_graph_list": window.unique_graph_list,
+                       "component_lists": window.component_lists,
+                       "configuration_list": window.configuration_list,
+                       "num_unique_configurations": window.num_unique_configurations,
+
+                       "configuration_index": window.configuration_index,
+
+                       "analysis_time": window.analysis_time,
+                       "check_isolability_time": window.check_isolability_time,
+                       "mcts_isolation_build_time": window.mcts_isolation_build_time,
+                       "prism_isolation_time": window.prism_isolation_time,
+                       "prism_isolation_time_sparse": window.prism_isolation_time_sparse,
+                       "prism_isolation_time_explicit": window.prism_isolation_time_explicit,
+                       "check_recoverability_time": window.check_recoverability_time},
+                      json_file)
+
         print(f"Benchmark done\n\n") if log_to_file else None
 
     logging.info(f"The whole analysis for all files took {time.time()-start_time} s.")

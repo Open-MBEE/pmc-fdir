@@ -1,0 +1,192 @@
+digraph "planning_example"
+{
+
+bgcolor = "#ffffff"
+
+node [
+class = "node"
+,fillcolor = "#ff00ff",style = "filled"
+,width = "0.152778",height = "0.152778"
+,shape = "ellipse"
+,color = "#000000"
+,penwidth = "1"
+,"_vis_" = "label"
+];
+
+
+"N14" [
+pos = "-2.77778,1.73611!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "thrusters"
+]
+
+"N6" [
+pos = "-0.694444,2.43056!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = ">=3"
+]
+
+"N5" [
+pos = "0.694444,2.77778!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "ang_velocity=low"
+]
+
+"N1" [
+pos = "-3.47222,4.16667!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "DETUMBLING
+ang_velocity=low"
+]
+
+"N8" [
+pos = "-1.04167,1.73611!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "rw_2"
+]
+
+"N10" [
+pos = "0.347222,1.73611!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "rw_4"
+]
+
+"N11" [
+pos = "-1.38889,4.16667!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "DESATURATION
+rw_momentum=low"
+]
+
+"N15" [
+pos = "2.08333,3.125!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "rw_momentum=low"
+]
+
+"N9" [
+pos = "-0.347222,1.73611!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "rw_3"
+]
+
+"N4" [
+pos = "-0.694444,3.125!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "reaction_wheels"
+]
+
+"N12" [
+pos = "-3.47222,2.43056!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "OR"
+]
+
+"N7" [
+pos = "-1.73611,1.73611!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "rw_1"
+]
+
+"N13" [
+pos = "-4.16667,1.73611!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "magnetorquers"
+]
+
+"N3" [
+pos = "0.694444,4.16667!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "FINE_POINTING"
+]
+
+"N2" [
+pos = "-3.47222,3.125!"
+,fillcolor = "#00cc33",style = "filled"
+,xlabel = "external_actuators"
+]
+
+
+
+edge [
+class = "edge"
+,weight = "1"
+,penwidth = "1"
+,"_vis_" = "label"
+,"color" = "#a0a0a4"
+,"style" = "solid"
+];
+
+
+"N11" -> "N2" [id = "E2"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N6" -> "N8" [id = "E7"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N2" -> "N12" [id = "E11"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N11" -> "N4" [id = "E10"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N1" -> "N2" [id = "E1"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N6" -> "N7" [id = "E6"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N12" -> "N13" [id = "E12"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N3" -> "N5" [id = "E4"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N6" -> "N9" [id = "E8"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N12" -> "N14" [id = "E13"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N3" -> "N4" [id = "E3"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N3" -> "N15" [id = "E14"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N6" -> "N10" [id = "E9"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N4" -> "N6" [id = "E5"
+,weight = "2"
+,penwidth = "2"
+];
+
+
+}

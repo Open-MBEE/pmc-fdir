@@ -1,0 +1,6 @@
+magnetorquers: 0.001,
+thrusters: 0.02,
+rw_1: 0.01,
+rw_2: 0.01,
+rw_3: 0.01,
+rw_4: 0.01

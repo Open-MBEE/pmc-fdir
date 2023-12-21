@@ -75,7 +75,8 @@ class MainWindow(Gtk.Window):
         self.isolable = []
         self.non_isolable = []
         self.missing_components = {}
-        self.isolation_cost = {}
+        self.best_isolation_cost = {}
+        self.worst_isolation_cost = {}
 
         self.recoverable = []
         self.non_recoverable = []
@@ -86,6 +87,7 @@ class MainWindow(Gtk.Window):
         self.unique_graph_list = {}
         self.component_lists = {}
         self.configuration_list = {}
+        self.num_unique_configurations = 0
 
         self.configuration_index = {}
 
@@ -120,7 +122,8 @@ class MainWindow(Gtk.Window):
             f"<b><big>No graph selected</big></b>\n"
             + f" - ? modes\n"
             + f" - ? components\n"
-            + f" - ? to ? configurations per mode\n")
+            + f" - ? to ? configurations per mode\n"
+            + f" - ? unique configurations")
         grid.attach(self.graph_stats, 0, 3, 2, 1)
 
         self.number_of_faults_label = Gtk.Label(label="Number of faults: ")
@@ -343,7 +346,8 @@ class MainWindow(Gtk.Window):
         self.isolable = []
         self.non_isolable = []
         self.missing_components = {}
-        self.isolation_cost = {}
+        self.best_isolation_cost = {}
+        self.worst_isolation_cost = {}
 
         self.recoverable = []
         self.non_recoverable = []
@@ -355,6 +359,7 @@ class MainWindow(Gtk.Window):
         self.unique_graph_list = {}
         self.component_lists = {}
         self.configuration_list = {}
+        self.num_unique_configurations = 0
 
         self.configuration_index = {}
 
@@ -362,6 +367,8 @@ class MainWindow(Gtk.Window):
         self.check_isolability_time = 0.0
         self.mcts_isolation_build_time = 0.0
         self.prism_isolation_time = 0.0
+        self.prism_isolation_time_sparse = 0.0
+        self.prism_isolation_time_explicit = 0.0
         self.check_recoverability_time = 0.0
 
         self.page6.set_graph_and_all_equipment(self.graph, self.all_equipment)
@@ -479,7 +486,8 @@ class MainWindow(Gtk.Window):
             f"<b><big>Selected graph: {filename.split('/')[-1]}</big></b>\n"
             + f" - ? modes\n"
             + f" - ? components\n"
-            + f" - ? to ? configurations per mode\n")
+            + f" - ? to ? configurations per mode\n"
+            + f" - ? unique configurations")
 
     def get_graph_stats_initial(self, filename, G):
         layers = get_layers(G)
@@ -487,16 +495,26 @@ class MainWindow(Gtk.Window):
             f"<b><big>Selected graph: {filename.split('/')[-1]}</big></b>\n"
             + f" - {len(find_root_nodes(G))} modes\n"
             + f" - {len(find_leaf_nodes(G, layers))} components\n"
-            + f" - ? to ? configurations per mode\n")
+            + f" - ? to ? configurations per mode\n"
+            + f" - ? unique configurations")
 
     def get_graph_stats(self, filename, G):
         layers = get_layers(G)
         num_configs = [len(self.component_lists[this_list]) for this_list in self.component_lists]
+
+        unique_component_lists = []
+        for root_node in self.component_lists:
+            for configuration in self.component_lists[root_node]:
+                if configuration not in unique_component_lists:
+                    unique_component_lists.append(configuration)
+        self.num_unique_configurations = len(unique_component_lists)
+
         self.graph_stats.set_markup(
             f"<b><big>Selected graph: {filename.split('/')[-1]}</big></b>\n"
             + f" - {len(find_root_nodes(G))} modes\n"
             + f" - {len(find_leaf_nodes(G, layers))} components\n"
-            + f" - {min(num_configs)} to {max(num_configs)} configurations per mode\n")
+            + f" - {min(num_configs)} to {max(num_configs)} configurations per mode\n"
+            + f" - {self.num_unique_configurations} unique configurations")
 
     def on_analyze(self, action):
         self.button_analyze.set_sensitive(False)
@@ -655,7 +673,6 @@ class MainWindow(Gtk.Window):
         self.terminal.feed_child(text)
 
     def export_isolation(self, button):
-
         self.button_export_isolation.set_sensitive(False)
         self.configuration_index = generate_prism_model(
             self.base_directory,
@@ -669,22 +686,38 @@ class MainWindow(Gtk.Window):
             self.get_costs(),
             hidden_variable=False,
             debug=False)
-
+        self.configuration_index = generate_prism_model(
+            self.base_directory,
+            os.path.join(self.output_dir, self.trimmed_filename + "_isolation_model.prism"),
+            self.graph,
+            self.all_equipment,
+            self.unique_graph_list,
+            self.component_lists,
+            self.configuration_list,
+            self.get_probabilities(probabilities_type="mean"),
+            self.get_costs(),
+            hidden_variable=False,
+            debug=True)
         generate_props(
             self.base_directory,
             os.path.join(self.output_dir, self.trimmed_filename + "_isolation_model.prism"),
             self.all_equipment)
         self.export_isolation_done = True
 
-    def run_isolation(self, button):
+    def run_isolation(self, button, engine="sparse"):
         self.button_run_isolation.set_sensitive(False)
         start_time_prism_isolation = time.time()
-        isolability, self.isolation_cost = run_prism(
+        isolability, self.best_isolation_cost, self.worst_isolation_cost = run_prism(
             self.base_directory,
             os.path.join(self.output_dir, self.trimmed_filename + "_isolation_model.prism"),
             self.all_equipment,
-            components="all")
+            components="all",
+            engine=engine)
         self.prism_isolation_time = time.time() - start_time_prism_isolation
+        if engine == "sparse":
+            self.prism_isolation_time_sparse = self.prism_isolation_time
+        elif engine == "explicit":
+            self.prism_isolation_time_explicit = self.prism_isolation_time
         self.run_isolation_done = True
         self.get_report()
 
@@ -875,9 +908,10 @@ class MainWindow(Gtk.Window):
                         component_text = f"A component fault in {components[0]}"
                     else:
                         component_text = f"The fault combination {components}"
-                    message += f"\t{component_text} is not isolable because the components "
-                    message += f"{', '.join(self.missing_components[components])} "
                     plural = True if len(self.missing_components[components]) > 1 else False
+                    message += f"\t{component_text} is not isolable because the component"
+                    message += f"{'s' if plural else ''} "
+                    message += f"{', '.join(self.missing_components[components])} "
                     message += f"{'are' if plural else 'is'} not independently accessible\n"
                 message += "\n"
                 for mode in self.non_recoverable:
@@ -942,14 +976,18 @@ class MainWindow(Gtk.Window):
 
         if self.run_isolation_done:
             message += f"Cost for the isolation of the components:\n"
-            for component, cost in sorted(self.isolation_cost.items(),
+            for component, cost in sorted(self.best_isolation_cost.items(),
                                           key=lambda item: item[1],
-                                          reverse=True):
-                if cost < float('inf'):
-                    message += f"\tThe cost for isolating {component} is {to_precision(cost, 4)}\n"
-            for component, cost in self.isolation_cost.items():
-                if cost == float('inf'):
-                    message += f"\t{component} is not isolable. No cost can be calculated\n"
+                                          reverse=False):
+                message += (f"\tThe cost for isolating {component} is "
+                            f"{to_precision(cost, 4) if cost != float('inf') else 'inf'}")
+                if self.worst_isolation_cost[component] != cost:
+                    worst = self.worst_isolation_cost[component]
+                    message += (f" to "
+                                f"{to_precision(worst, 4) if worst != float('inf') else 'inf'}"
+                                f" depending on initial state.\n")
+                else:
+                    message += ".\n"
         else:
             message += f"Execute 'Export PRISM' and 'Run PRISM' to get the isolation cost.\n"
         message += "\n"

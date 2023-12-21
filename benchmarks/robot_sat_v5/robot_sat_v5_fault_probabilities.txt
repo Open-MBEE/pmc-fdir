@@ -1,0 +1,9 @@
+adcs_itself: 0.01,
+array: 0.005,
+battery: 0.001,
+camera_itself: 0.05,
+com_itself: 0.01,
+mppt_itself: 0.005,
+regulator_itself: 0.001,
+robot_itself: 0.1,
+target_mass: 0.01

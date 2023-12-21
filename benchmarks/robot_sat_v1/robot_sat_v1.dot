@@ -1,0 +1,142 @@
+digraph "robot_sat_v1"
+{
+
+bgcolor = "#ffffff"
+
+node [
+class = "node"
+,fillcolor = "#ff00ff",style = "filled"
+,width = "0.152778",height = "0.152778"
+,shape = "ellipse"
+,color = "#000000"
+,penwidth = "1"
+,"_vis_" = "label"
+];
+
+
+"N23" [
+pos = "3.47222,0.694444!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "soc=high"
+]
+
+"N15" [
+pos = "1.73611,0.694444!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "adcs"
+]
+
+"N53" [
+pos = "3.47222,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "DOWNLINK_DATA"
+]
+
+"N56" [
+pos = "9.02778,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "GENERATE_POWER"
+]
+
+"N31" [
+pos = "5.20833,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "SUN_TRACKING
+soc=high"
+]
+
+"N47" [
+pos = "1.73611,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "DETUMBLING
+ang_velocity=low"
+]
+
+"N14" [
+pos = "6.94444,0.694444!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "com"
+]
+
+"N21" [
+pos = "5.20833,0.694444!"
+,fillcolor = "#ffff00",style = "filled"
+,xlabel = "ang_velocity=low"
+]
+
+"N6" [
+pos = "9.02778,0.694444!"
+,fillcolor = "#3399ff",style = "filled"
+,xlabel = "generator"
+]
+
+"N1" [
+pos = "6.94444,1.73611!"
+,fillcolor = "#ff9900",style = "filled"
+,xlabel = "COMMANDING"
+]
+
+
+
+edge [
+class = "edge"
+,weight = "1"
+,penwidth = "1"
+,"_vis_" = "label"
+,"color" = "#a0a0a4"
+,"style" = "solid"
+];
+
+
+"N53" -> "N21" [id = "E27"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N47" -> "N15" [id = "E23"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N1" -> "N14" [id = "E1"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N31" -> "N21" [id = "E26"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N15" [id = "E65"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N31" -> "N6" [id = "E25"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N14" [id = "E64"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N31" -> "N15" [id = "E36"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N53" -> "N23" [id = "E28"
+,weight = "2"
+,penwidth = "2"
+];
+
+"N56" -> "N6" [id = "E69"
+,weight = "2"
+,penwidth = "2"
+];
+
+
+}

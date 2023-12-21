@@ -1,0 +1,3 @@
+array: 0.005,
+battery: 0.001,
+target_mass: 0.01

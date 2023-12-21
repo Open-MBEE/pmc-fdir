@@ -1,0 +1,7 @@
+adcs: 0.01,
+array: 0.005,
+camera: 0.05,
+com: 0.01,
+mppt: 0.005,
+robot: 0.1,
+target_mass: 0.01

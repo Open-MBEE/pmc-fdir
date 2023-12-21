@@ -16,6 +16,7 @@ import subprocess
 import logging
 import re
 import os
+import json
 from functools import reduce
 from to_precision import to_precision
 from graph_analysis.graph_analysis import get_node_name, find_leaf_nodes, get_fault_probability, \
@@ -138,50 +139,49 @@ def get_assembly_name(graph, node):
     return f"{assembly_name}_{get_node_name(graph, node).strip('>=')}"
 
 
-def get_action(G,
-               root_node,
-               unique_graph_per_root_node,
-               component_list_per_root_node,
-               configuration_list_per_root_node,
-               variable_handler,
-               equipment_fault_probabilities,
-               mode_costs,
-               hidden_variable,
-               include_configurations=False):
+def get_actions(graph,
+                root_node,
+                unique_graph_per_root_node,
+                component_list_per_root_node,
+                configuration_list_per_root_node,
+                variable_handler,
+                equipment_fault_probabilities,
+                mode_costs,
+                hidden_variable,
+                include_configurations=False):
     action_strings = ""
     cost_strings = ""
-    logging.debug(f"[{get_node_name(G, root_node)}] "
+    logging.debug(f"[{get_node_name(graph, root_node)}] "
                   f"{configuration_list_per_root_node=}, {component_list_per_root_node=}")
     for unique_graph, configuration, component_list in \
             zip(unique_graph_per_root_node,
                 configuration_list_per_root_node,
                 component_list_per_root_node):
-        logging.debug(f"[{get_node_name(G, root_node)}] "
+        logging.debug(f"[{get_node_name(graph, root_node)}] "
                       f"Write action for {configuration=}")
         logging.debug(f"{component_list=}")
         # name
-        action_string = f"  [{get_node_name(G, root_node)}"
+        action_string = f"  [{get_node_name(graph, root_node)}"
         configuration_numbers = []
         for assembly in configuration:
-            configuration_numbers.append(
-                str(variable_handler.convert_to_prism_configuration(assembly,
-                                                                    configuration[assembly])))
-        action_string += f"_{'_'.join(configuration_numbers)}"
+            conf_number = variable_handler.convert_to_prism_configuration(assembly,
+                                                                          configuration[assembly])
+            configuration_numbers.append(str(conf_number))
+            action_string += f"_{conf_number}"
         variable_handler.add_configuration(root_node, '_'.join(configuration_numbers))
         action_string += "] "
-        cost_strings += f"{action_string}true: {mode_costs[get_node_name(G, root_node)]};\n"
+        cost_strings += f"{action_string}true: {mode_costs[get_node_name(graph, root_node)]};\n"
         # guard
         guards = []
         # configuration
         if include_configurations:
             for assembly in configuration:
-                prism_configuration = variable_handler.convert_to_prism_configuration(
+                conf_number = variable_handler.convert_to_prism_configuration(
                     assembly, configuration[assembly])
-                guards.append(f"{get_assembly_name(G, assembly)}="
-                              f"{prism_configuration}")
+                guards.append(f"{get_assembly_name(graph, assembly)}={conf_number}")
         # logical guards
-        logical_guards = [get_node_name(G, node)
-                          for node in find_leaf_nodes(G, root_node=root_node, type='guards')]
+        logical_guards = [get_node_name(graph, node)
+                          for node in find_leaf_nodes(graph, root_node=root_node, type='guards')]
         guards += [variable_handler.convert_to_prism_guard(guard) for guard in logical_guards]
         # block action if one of the utilized components is faulty
         if hidden_variable:
@@ -197,13 +197,15 @@ def get_action(G,
         fault_probability = get_fault_probability(unique_graph,
                                                   root_node,
                                                   equipment_fault_probabilities)
+        # high numerical precision needed so PRISM will not complain about the sum of the
+        # probabilities not being 1
         action_string += f"{to_precision(1-fault_probability, 30, notation='std')}: "
         # positive outcome, components
         positive_outcomes = []
         for component in component_list:
             positive_outcomes.append(f"({component}\'=0)")
         # positive outcome, variable changes
-        positive_outcomes.append(variable_handler.convert_to_prism_outcome(get_effects(G,
+        positive_outcomes.append(variable_handler.convert_to_prism_outcome(get_effects(graph,
                                                                                        root_node)))
         # if there are no effects, we might add an empty string that needs to be filtered
         if ilen(filter(None, positive_outcomes)):
@@ -220,7 +222,7 @@ def get_action(G,
     return action_strings, cost_strings
 
 
-def get_cost(G, costs):
+def get_cost(costs):
     cost_string = "rewards \"total_cost\"\n"
     for cost in costs:
         cost_string += cost
@@ -228,7 +230,7 @@ def get_cost(G, costs):
     return cost_string
 
 
-def get_labels(G, all_equipment, hidden_variable, component_to_be_isolated="any"):
+def get_label(graph, all_equipment, hidden_variable, component_to_be_isolated="any"):
     if component_to_be_isolated == "any":
         label_string = "label \"isolation_complete\" =\n      "
         sub_strings = []
@@ -243,6 +245,10 @@ def get_labels(G, all_equipment, hidden_variable, component_to_be_isolated="any"
             sub_strings.append(f"({' & '.join(component_strings)})")
         label_string += "\n    | ".join(sub_strings)
         label_string += ";"
+    elif component_to_be_isolated == "all_available":
+        label_string = f"label \"all_available\" = "
+        label_string += " & ".join([f"{component}=0" for component in all_equipment])
+        label_string += ";"
     else:
         label_string = f"label \"isolation_complete_{component_to_be_isolated}\" = "
         component_strings = []
@@ -254,11 +260,11 @@ def get_labels(G, all_equipment, hidden_variable, component_to_be_isolated="any"
     return label_string
 
 
-def get_init_string(G):
-    init_string = "init\n"
+def get_init(graph):
+    init_string = "init\n  "
     component_strings = []
-    for component in find_leaf_nodes(G, type='components'):
-        component_strings.append(f"{get_node_name(G, component)}=1")
+    for component in find_leaf_nodes(graph, type='components'):
+        component_strings.append(f"{get_node_name(graph, component)}=1")
     init_string += " & ".join(component_strings)
     init_string += "\nendinit\n"
     return init_string
@@ -266,7 +272,7 @@ def get_init_string(G):
 
 def generate_prism_model(base_directory,
                          filename,
-                         G,
+                         graph,
                          all_equipment,
                          unique_graph_list,
                          component_lists,
@@ -284,29 +290,30 @@ def generate_prism_model(base_directory,
         prism_filename = f"{os.path.join(work_directory, trimmed_filename)}.prism"
     logging.info(f"Generating prism model {prism_filename}")
 
+    variable_handler = VariableHandler()
+    # first generate the actions so the variable handler knows the number of prism states needed
+    actions = []
+    costs = []
+    for root_node in unique_graph_list:
+        logging.info(f"Generate actions for mode {get_node_name(graph, root_node)}")
+        action, cost = get_actions(graph,
+                                   root_node,
+                                   unique_graph_list[root_node],
+                                   component_lists[root_node],
+                                   configuration_list[root_node],
+                                   variable_handler,
+                                   equipment_fault_probabilities,
+                                   mode_costs,
+                                   hidden_variable)
+        actions.append(action)
+        costs.append(cost)
+
     with open(prism_filename, 'w') as prism_file:
-        variable_handler = VariableHandler()
-        # first generate the actions so the variable handler knows the number of prism states needed
-        actions = []
-        costs = []
-        for root_node in unique_graph_list:
-            logging.info(f"Generate actions for mode {get_node_name(G, root_node)}")
-            action, cost = get_action(G,
-                                      root_node,
-                                      unique_graph_list[root_node],
-                                      component_lists[root_node],
-                                      configuration_list[root_node],
-                                      variable_handler,
-                                      equipment_fault_probabilities,
-                                      mode_costs,
-                                      hidden_variable)
-            actions.append(action)
-            costs.append(cost)
         # generate initialization
         print("mdp\n\nmodule sat\n", file=prism_file)
         # declare variables for components, logical states, and configurations
         print(
-            variable_handler.convert_to_prism_declaration(G,
+            variable_handler.convert_to_prism_declaration(graph,
                                                           all_equipment,
                                                           hidden_variable,
                                                           include_configurations=False,
@@ -318,36 +325,17 @@ def generate_prism_model(base_directory,
             print(action, file=prism_file)
         print("endmodule\n", file=prism_file)
         # rewards
-        print(get_cost(G, costs), file=prism_file)
+        print(get_cost(costs), file=prism_file)
         # labels
         for component in all_equipment:
-            print(get_labels(G, all_equipment, hidden_variable, component), file=prism_file)
-        print(get_labels(G, all_equipment, hidden_variable, "any"), file=prism_file)
+            print(get_label(graph, all_equipment, hidden_variable, component), file=prism_file)
+        print(get_label(graph, all_equipment, hidden_variable, "any"), file=prism_file)
+        print(get_label(graph, all_equipment, hidden_variable, "all_available"), file=prism_file)
         print("", file=prism_file)
         # init
         if not debug:
-            print(get_init_string(G), file=prism_file)
+            print(get_init(graph), file=prism_file)
     logging.info(f"Generated prism model {prism_filename}")
-    return variable_handler.get_configuration_index()
-
-
-def get_configuration_index(G,
-                            unique_graph_list,
-                            component_lists,
-                            configuration_list,
-                            equipment_fault_probabilities,
-                            mode_costs):
-    variable_handler = VariableHandler()
-    for root_node in unique_graph_list:
-        get_action(G,
-                   root_node,
-                   unique_graph_list[root_node],
-                   component_lists[root_node],
-                   configuration_list[root_node],
-                   variable_handler,
-                   equipment_fault_probabilities,
-                   mode_costs,
-                   hidden_variable=False)
     return variable_handler.get_configuration_index()
 
 
@@ -356,37 +344,54 @@ def generate_props(base_directory, filename, all_equipment):
     work_directory = os.path.split(filename)[0]
     with open(f"{os.path.join(work_directory, trimmed_filename)}.props", 'w') as props_file:
         for component in all_equipment:
-            print(f"\"{component}\": Rmin=? [ F \"isolation_complete_{component}\" ]",
+            print(f"\"{component}\": filter(printall, Rmin=? "
+                  f"[ F \"isolation_complete_{component}\" ], \"init\")",
                   file=props_file)
         print(f"\"any\": Rmin=? [ F \"isolation_complete\" ]", file=props_file)
-        print(f"\"sparse\": Pmax=? [F \"isolation_complete\"]", file=props_file)
+        # print(f"\"sparse\": Pmax=? [F \"isolation_complete\"]", file=props_file)
+        print(f"\"all\": filter(printall, Rmin=? [ F \"all_available\" ], \"init\")",
+                  file=props_file)
     logging.info(f"Generated props file {os.path.join(work_directory, trimmed_filename)}.props")
 
 
-def run_prism(base_directory, filename, all_equipment, components="all"):
+def run_prism(base_directory, filename, all_equipment, components="all", engine="sparse"):
     if components == "all":
         isolability = {}
-        isolation_cost = {}
+        best_isolation_cost = {}
+        worst_isolation_cost = {}
         for component in all_equipment:
             logging.info(f"Check isolability for {component}")
-            isolability[component], isolation_cost[component] = run_prism_helper(base_directory,
-                                                                                 filename,
-                                                                                 component)
+            isolability[component], best_isolation_cost[component], worst_isolation_cost[component] \
+                = run_prism_helper(base_directory,
+                                   filename,
+                                   component=component,
+                                   json_export=True,
+                                   engine=engine)
             logging.info(f"Result for {component}: {isolability[component]}, "
-                         f"Cost: {isolation_cost[component]}")
+                         f"Cost: {best_isolation_cost[component]}")
+            if worst_isolation_cost[component] != best_isolation_cost[component]:
+                logging.info(f"Worst-case isolation cost for uninitialized system: "
+                             f"{worst_isolation_cost[component]}")
     elif components == "any":
         logging.info(f"Check isolability for any component")
-        isolability, isolation_cost = run_prism_helper(base_directory, filename, "any")
-        logging.info(f"Result for any component: {isolability}, Cost: {isolation_cost}")
+        isolability, best_isolation_cost, worst_isolation_cost \
+            = run_prism_helper(base_directory,
+                               filename,
+                               component="any",
+                               json_export=False,
+                               engine=engine)
+        logging.info(f"Result for any component: {isolability}, Cost: {best_isolation_cost}")
+        if worst_isolation_cost != best_isolation_cost:
+            logging.info(f"Worst-case isolation cost for uninitialized system: "
+                         f"{worst_isolation_cost}")
     logging.info(f"Check for isolability done")
-    return isolability, isolation_cost
+    return isolability, best_isolation_cost, worst_isolation_cost
 
 
-def run_prism_helper(base_directory, filename, component):
+def run_prism_helper(base_directory, filename, component="any", json_export=False, engine="sparse"):
     trimmed_filename = os.path.split(filename)[-1].split('.')[0]
     work_directory = os.path.split(filename)[0]
     prism_path = "prism/bin/prism"
-    pattern = r'Result: \S*'
     # Adjust the -javamaxmem argument to your PC's specs. Using ~60% by default
     mem_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
     mem_max = f"{int(0.6 * mem_bytes / (1024. ** 3))}g"
@@ -394,26 +399,57 @@ def run_prism_helper(base_directory, filename, component):
 
     args = f"{os.path.join(base_directory, prism_path)} " \
            f"{os.path.join(work_directory, trimmed_filename)}.prism " \
-           f"{os.path.join(work_directory, trimmed_filename)}.props -prop {component} -explicit " \
+           f"{os.path.join(work_directory, trimmed_filename)}.props -prop {component} -{engine} " \
            f"-javamaxmem {mem_max}"
+           # f"-exportstrat {trimmed_filename}_{component}_strategy.prism:type=actions " \
+           # f"-exportstates {trimmed_filename}_{component}_strategy_states.prism"
     logging.info(f"Command: prism {trimmed_filename}.prism {trimmed_filename}.props "
-                 f"-prop {component} -explicit -javamaxmem {mem_max}")
+                 f"-prop {component} -{engine} -javamaxmem {mem_max}")
     result = subprocess.run(args.split(" "), stdout=subprocess.PIPE, text=True)
-    with open(f"{os.path.join(work_directory, trimmed_filename)}_{component}_result.txt", 'w') as result_file:
+    result_filename = (f"{os.path.join(work_directory, trimmed_filename)}_{component}_{engine}_"
+                       f"result.txt")
+    with open(result_filename, 'w') as result_file:
         result_file.write(result.stdout)
-    prism_result = re.findall(pattern, result.stdout)
+    prism_result = re.findall(r"Result: \[*([\d.Infity]+),*([\d.Infity]+)*\]*", result.stdout)
     if prism_result:
         logging.debug(f"{component} - {prism_result[0]}")
-        first_number = re.findall("\\d+.\\d+", prism_result[0])
-        if first_number:
-            isolation_cost = float(first_number[0])
-            isolability = True
-        else:
-            isolation_cost = float('inf')
+        if prism_result[0][0] == "Infinity":  # First result
+            best_isolation_cost = float('inf')
             isolability = False
+        else:
+            best_isolation_cost = float(prism_result[0][0])
+            isolability = True
+        worst_isolation_cost = best_isolation_cost  # Second result
+        if len(prism_result[0]) > 1:
+            if not prism_result[0][1]:
+                pass
+            elif prism_result[0][1] == "Infinity":
+                worst_isolation_cost = float('inf')
+            else:
+                worst_isolation_cost = float(prism_result[0][1])
     else:
-        isolation_cost = float('inf')
+        best_isolation_cost = float('inf')
+        worst_isolation_cost = float('inf')
         isolability = False
         logging.error(f"{component} - Error!")
         logging.error(result.stdout)
-    return isolability, isolation_cost
+    if json_export:
+        initial_state_num = int(re.findall(r"(\d+) initial", result.stdout)[0])
+        cost_per_state = re.findall(r"\d+:\S+=(\d+.\d*)", result.stdout)
+        all_costs = [float(cost_string) for cost_string in cost_per_state]
+        coverage = len(cost_per_state)/initial_state_num
+        json_filename = (f"{os.path.join(work_directory, trimmed_filename)}_{component}_{engine}"
+                         f".json")
+        with open(json_filename, 'w') as json_file:
+            json.dump({"component": component,
+                       "initial_state_num": initial_state_num,
+                       "all_costs": all_costs,
+                       "coverage": coverage,
+                       "isolability": isolability,
+                       "best_isolation_cost": best_isolation_cost,
+                       "worst_isolation_cost": worst_isolation_cost,
+                       "engine": engine},
+                      json_file)
+        logging.debug(f"Isolation cost for {initial_state_num} initial states written to "
+                      f"{json_filename}")
+    return isolability, best_isolation_cost, worst_isolation_cost
