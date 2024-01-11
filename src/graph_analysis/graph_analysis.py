@@ -20,6 +20,7 @@ import re
 import logging
 import concurrent.futures
 import time
+import math
 from functools import reduce
 from operator import mul
 
@@ -346,7 +347,6 @@ def create_graph(graph, root_node, invariant_nodes, permutation, fetcher):
             # If the assembly is not shadowed, we complete the cycle by updating nodes_to_keep and
             # nodes_to_delete with the newly built sets for this assembly
             nodes_to_keep |= nodes_to_keep_per_assembly
-            nodes_to_keep -= nodes_to_delete_per_assembly
             nodes_to_delete |= nodes_to_delete_per_assembly
 
     # The nodes remaining in the graph are the union of the invariant_nodes and node_to_keep
@@ -402,7 +402,7 @@ def create_graph_list_mode(main_graph, root_node, list_fetcher, threading):
     configurations, configuration_space_mode, number_of_permutations \
         = create_configuration_space(subgraph, layers)
     # Compile all combinations of configurations for all assemblies. Each permutation will yield
-    # one feasible configuration of the whole mode graph
+    # one feasible configuration of the whole graph
     permutations = create_permutations(configurations)
 
     # Determine the set of nodes not affected by the configurations
@@ -596,25 +596,30 @@ def get_fault_probability(graph, node, equipment_fault_probabilities):
         if get_node_name(graph, node).startswith(">="):  # k-out-of-n assembly
             # sub assembly fails for num_available-num_required+1 faults
             required = int(re.findall(r"\d+", get_node_name(graph, node))[0])
-            successor_reliabilities = \
-                [1 - get_fault_probability(graph, successor, equipment_fault_probabilities)
+            successor_fault_probabilities = \
+                [get_fault_probability(graph, successor, equipment_fault_probabilities)
                  for successor in exclude_guards(graph, graph.successors(node))]
-            fault_probability_combinations = \
-                [1 - reduce(mul, combination, 1)
-                 for combination in itertools.combinations(successor_reliabilities, required)]
-            surplus = len(list(exclude_guards(graph, graph.successors(node)))) - required + 1
-            fault_probability = reduce(mul, sorted(fault_probability_combinations)[:surplus], 1)
+            fault_probability = 1 - reliability_binomial(required, successor_fault_probabilities)
         elif get_node_name(graph, node).startswith("OR"):  # OR assembly
             # sub assembly fails if all members fail
             successor_fault_probabilities = \
                 [get_fault_probability(graph, successor, equipment_fault_probabilities)
                  for successor in exclude_guards(graph, graph.successors(node))]
-            fault_probability = reduce(mul, successor_fault_probabilities, 1)
+            fault_probability = math.prod(successor_fault_probabilities)
         else:  # AND assembly
             # sub assembly fails if one of the members fails
             successor_reliabilities = \
                 [1 - get_fault_probability(graph, successor, equipment_fault_probabilities)
                  for successor in exclude_guards(graph, graph.successors(node))]
-            reliability = reduce(mul, successor_reliabilities, 1)
+            reliability = math.prod(successor_reliabilities)
             fault_probability = 1 - reliability
     return fault_probability
+
+
+def reliability_binomial(required, unreliabilities):
+    available = len(unreliabilities)
+    reliabilities = [1-unreliability for unreliability in unreliabilities]
+    return sum([math.comb(available, faults)
+                * math.prod(reliabilities[faults:])
+                * math.prod(unreliabilities[:faults])
+                for faults in range(available - required + 1)])
