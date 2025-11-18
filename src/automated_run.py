@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.9
 
-# Copyright [2023] Jonis Kiesbye, Kush Grover
+# Copyright [2024-2025] Jonis Kiesbye, Kush Grover
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# project-specific libraries
 from analysis_tool_gui import initialize_window
+
+# Python built-in libraries
 import logging
 import os
 import time
@@ -25,40 +28,55 @@ from collections import namedtuple
 log_to_file = True
 benchmark_folder = "benchmarks"
 Benchmark = namedtuple('Benchmark',
-                       'name n_faults includeMCTS includePrism engines')
-benchmarks = [Benchmark('space_tug_ver1', 2, False, False, []),
-              Benchmark('space_tug_ver1', 1, True, True, ["explicit", "sparse"]),
-              Benchmark('space_tug_ver2', 2, False, False, []),
-              Benchmark('space_tug_ver2', 1, True, True, ["explicit", "sparse"]),
-              Benchmark('space_tug_ver3', 2, False, False, []),
-              Benchmark('space_tug_ver3', 1, True, True, ["explicit", "sparse"]),
-              Benchmark('space_tug_ver4', 2, False, False, []),
-              Benchmark('space_tug_ver4', 1, True, True, ["explicit", "sparse"]),
-              Benchmark('space_tug_ver5', 2, False, False, []),
-              Benchmark('space_tug_ver5', 1, True, True, ["explicit", "sparse"]),
-              Benchmark('space_tug_ver6', 2, False, False, []),
-              Benchmark('space_tug_ver6', 1, True, True, ["explicit", "sparse"]),
-              Benchmark('space_tug_ver7', 2, False, False, []),
-              Benchmark('space_tug_ver7', 1, True, True, ["explicit", "sparse"]),
-              Benchmark('space_tug_ver8', 2, False, False, []),
-              Benchmark('space_tug_ver8', 1, False, False, []),
-              Benchmark('space_tug_ver9', 2, False, False, []),
-              Benchmark('space_tug_ver9', 1, False, False, [])
+                       'name n_faults writeReport includeMCTS includePrism engines numRuns')
+# benchmarks = [Benchmark('space_tug_ver1', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver1', 1, True, True, True, ["explicit", "sparse"], ["10", "200"]),
+#               Benchmark('space_tug_ver2', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver2', 1, True, True, True, ["explicit", "sparse"], ["10", "200"]),
+#               Benchmark('space_tug_ver3', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver3', 1, True, True, True, ["explicit", "sparse"], ["10", "200"]),
+#               Benchmark('space_tug_ver4', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver4', 1, True, True, True, ["explicit", "sparse"], ["10", "200"]),
+#               Benchmark('space_tug_ver5', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver5', 1, True, True, True, ["explicit", "sparse"], ["10", "200"]),
+#               Benchmark('space_tug_ver6', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver6', 1, True, True, True, ["explicit", "sparse"], ["10", "200"]),
+#               Benchmark('space_tug_ver7', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver7', 1, True, True, True, ["explicit", "sparse"], ["10", "200"]),
+#               Benchmark('space_tug_ver8', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver8', 1, True, True, True, ["explicit", "sparse"], ["10", "200"]),
+#               Benchmark('space_tug_ver9', 2, True, False, False, [], []),
+#               Benchmark('space_tug_ver9', 1, True, True, True, ["explicit", "sparse"], ["10", "200"])
+#               ]
+
+benchmarks = [Benchmark('robot_sat_v1', 2, True, False, False, [], []),
+              Benchmark('robot_sat_v1', 1, True, False, True, ["explicit", "sparse"], ["10", "200"]),
+              Benchmark('robot_sat_v2', 2, True, False, False, [], []),
+              Benchmark('robot_sat_v2', 1, True, False, True, ["explicit", "sparse"], ["10", "200"]),
+              Benchmark('robot_sat_v3', 2, True, False, False, [], []),
+              Benchmark('robot_sat_v3', 1, True, False, True, ["explicit", "sparse"], ["10", "200"]),
+              Benchmark('robot_sat_v4', 2, True, False, False, [], []),
+              Benchmark('robot_sat_v4', 1, True, False, True, ["explicit", "sparse"], ["10", "200"]),
+              Benchmark('robot_sat_v5', 2, True, False, False, [], []),
+              Benchmark('robot_sat_v5', 1, True, False, True, ["explicit", "sparse"], ["10", "200"]),
+              Benchmark('robot_sat_v6', 2, True, False, False, [], []),
+              Benchmark('robot_sat_v6', 1, True, False, True, ["explicit", "sparse"], ["10", "200"]),
+              Benchmark('robot_sat_v7', 2, True, False, False, [], []),
+              Benchmark('robot_sat_v7', 1, True, False, True, ["explicit", "sparse"], ["10", "200"]),
               ]
-# benchmarks = [Benchmark('robot_sat_v1', 1, False, True, ["explicit", "sparse"]),
-#               Benchmark('robot_sat_v2', 1, False, True, ["explicit", "sparse"]),
-#               Benchmark('robot_sat_v3', 1, False, True, ["explicit", "sparse"]),
-#               Benchmark('robot_sat_v4', 1, False, True, ["explicit", "sparse"]),
-#               Benchmark('robot_sat_v5', 1, False, True, ["explicit", "sparse"]),
-#               Benchmark('robot_sat_v6', 1, False, True, ["explicit", "sparse"]),
-#               Benchmark('robot_sat_v7', 1, False, True, ["explicit", "sparse"])
+#
+
+# benchmarks = [Benchmark('drone_quadcopter', 1, True, True, True, ["explicit"], ["10"]),
+#               Benchmark('drone_quadcopter', 2, True, False, False, [], []),
+#               Benchmark('drone_hexacopter', 1, True, True, True, ["explicit"], ["10"]),
+#               Benchmark('drone_hexacopter', 2, True, False, False, [], [])
+#               ]
+# benchmarks = [Benchmark('drone_hexacopter', 1, False, True, False, ["sparse"], ["10"])
 #               ]
 #
-benchmarks = [#Benchmark('space_tug_ver8', 1, False, True, ["explicit", "sparse"]),
-              Benchmark('space_tug_ver9', 1, False, True, ["explicit", "sparse"])
-              ]
-#
-# benchmarks = [Benchmark('planning_example', 1, False, True, ["explicit", "sparse"])]
+# benchmarks = [Benchmark('planning_example', 1, False, True, ["explicit", "sparse"], [])]
+
+# benchmarks = [Benchmark('space_tug_ver1', 1, True, True, False, [], [])]
 
 
 def main():
@@ -109,27 +127,24 @@ def main():
         window.write_sensitivity(None)
         print(f"Analysis done") if log_to_file else None
 
+        # Initialize results because they are part of the JSON
+        mcts_isolation_times = {}
+        mcts_isolation_costs = {}
+        mcts_isolation_costs_naive = {}
+        mcts_isolation_build_times = {}
         if benchmark.n_faults == 1 and benchmark.includeMCTS:
             # Build isolation with MCTS
-            print(f"MCTS run with 1 successor") if log_to_file else None
-            window.children_to_keep_entry.set_text("1")
-            window.simulations_per_node_entry.set_text("200")
-            window.build_prune_and_compress(None, gui=False)
-
-            print(f"MCTS run with 2 successors") if log_to_file else None
-            window.children_to_keep_entry.set_text("2")
-            window.simulations_per_node_entry.set_text("200")
-            window.build_prune_and_compress(None, gui=False)
-
-            print(f"MCTS run with 10 successors") if log_to_file else None
-            window.children_to_keep_entry.set_text("10")
-            window.simulations_per_node_entry.set_text("200")
-            window.build_prune_and_compress(None, gui=False)
-
-            # print(f"MCTS run with all successors") if log_to_file else None
-            # window.children_to_keep_entry.set_text(0)
-            # window.simulations_per_node_entry.set_text(0)
-            # window.build_prune_and_compress(None)
+            for num_successors in ["1"]:  #, "2", "10", "0"]:
+                print(f"MCTS run with {num_successors} successors") if log_to_file else None
+                for num_runs in benchmark.numRuns:
+                    for approach in ['mcts']:  #, 'prism']:
+                        window.children_to_keep_entry.set_text(num_successors)
+                        window.simulations_per_node_entry.set_text(num_runs)
+                        window.build_prune_and_compress(None, approach=approach, gui=False)
+                        mcts_isolation_times[window.suffix] = window.mcts_isolation_time
+                        mcts_isolation_costs[window.suffix] = window.mcts_isolation_cost
+                        mcts_isolation_build_times[window.suffix] = window.mcts_isolation_build_time
+                    mcts_isolation_costs_naive[window.suffix] = window.mcts_isolation_cost_naive
 
         if benchmark.n_faults == 1:
             # Build recovery
@@ -146,7 +161,8 @@ def main():
                 window.run_isolation(None, engine=engine)
 
         # Save weakness report
-        window.write_report(None)
+        if benchmark.writeReport:
+            window.write_report(None)
         logging.info(f"The analysis for file {window.filename} took "
                      f"{time.time() - start_time_benchmark} s.")
 
@@ -154,7 +170,7 @@ def main():
         json_filename = os.path.join(window.base_directory,
                                      benchmark_path,
                                      'output',
-                                     f'{benchmark.name}.json')
+                                     f'{benchmark.name}_{benchmark.n_faults}-faults.json')
         with open(json_filename, 'w') as json_file:
             json.dump({"benchmark_name": benchmark.name,
                        "benchmark_n_faults": benchmark.n_faults,
@@ -184,11 +200,15 @@ def main():
 
                        "analysis_time": window.analysis_time,
                        "check_isolability_time": window.check_isolability_time,
-                       "mcts_isolation_build_time": window.mcts_isolation_build_time,
+                       "mcts_isolation_times": mcts_isolation_times,
+                       "mcts_isolation_costs": mcts_isolation_costs,
+                       "mcts_isolation_costs_naive": mcts_isolation_costs_naive,
+                       "mcts_isolation_build_times": mcts_isolation_build_times,
                        "prism_isolation_time": window.prism_isolation_time,
                        "prism_isolation_time_sparse": window.prism_isolation_time_sparse,
                        "prism_isolation_time_explicit": window.prism_isolation_time_explicit,
-                       "check_recoverability_time": window.check_recoverability_time},
+                       "check_recoverability_time": window.check_recoverability_time,
+                       "build_recovery_time": window.build_recovery_time},
                       json_file)
 
         print(f"Benchmark done\n\n") if log_to_file else None

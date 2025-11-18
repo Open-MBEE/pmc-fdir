@@ -1,4 +1,4 @@
-# Copyright [2023] Jonis Kiesbye, Kush Grover
+# Copyright [2023-2025] Jonis Kiesbye, Kush Grover
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,19 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Python built-in libraries
 import math
 
+# third-party libraries
 import networkx as nx
-import pydot
 
+# project-specific libraries
 from graph_analysis.graph_analysis import create_graph_list, get_layers, get_node_name, \
     find_root_nodes, find_leaf_nodes, find_isolated_nodes
 
 
 def get_configuration_all_modes(statistics, parameters):
-    graphs = pydot.graph_from_dot_file(parameters["input_file"])
-    graph = graphs[0]
-    dependency_graph = nx.DiGraph(nx.nx_pydot.from_pydot(graph))
+    multi_digraph = nx.nx_agraph.read_dot(parameters["input_file"])
+    dependency_graph = nx.DiGraph(multi_digraph)
     if len(find_isolated_nodes(dependency_graph)) > 0:
         for node in find_isolated_nodes(dependency_graph):
             dependency_graph.remove_node(node)
@@ -52,7 +53,7 @@ def get_configuration_all_modes(statistics, parameters):
 
 
 def get_all_actions(dependency_graph, all_equipment, statistics):
-    threading = True
+    threading = False
     unique_graph_list, unique_node_lists, component_lists, \
         configuration_list, configuration_space = \
         create_graph_list(dependency_graph, threading)

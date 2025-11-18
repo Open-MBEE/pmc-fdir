@@ -1,4 +1,4 @@
-# Copyright [2023] Kush Grover
+# Copyright [2023-2025] Kush Grover
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Python built-in libraries
 import logging
 import logging.handlers
 import os
@@ -20,11 +21,13 @@ import random
 import re
 import sys
 import time
-
-import networkx as nx
-from tqdm import tqdm
 import argparse
 
+# third-party libraries
+import networkx as nx
+from tqdm import tqdm
+
+# project-specific libraries
 import evaluate_prism_strat
 from base import get_configuration_all_modes, no_possible_successors, get_fault_probabilities, \
     remove_unnecessary_nodes, list_to_int
@@ -391,10 +394,14 @@ def main():
     end_time_mcts = time.time()
 
     strategy = {}
+
+    # MCTS strategy
     if parameters["mcts_strategy"]:
         strategy = export_mcts_strategy(graph, data, stats, parameters)
         if not parameters["initial_state_file"]:
             evaluate_mcts_strategy(parameters, data, stats)
+
+    # Naive approach
     if parameters["evaluate_naive"]:
         evaluate_naive(stats)
 
@@ -403,6 +410,7 @@ def main():
     print("Graph size: ", len(graph.nodes) - 1)
     print("Graph transitions: ", len(graph.edges) - len(stats["all_modes"]))
 
+    # PRISM strategy
     start_time_prism = 0
     end_time_prism = 0
     if not parameters["mcts_strategy"]:
@@ -417,7 +425,7 @@ def main():
         if not parameters["initial_state_file"]:
             evaluate_prism_strat.evaluate_prism_strategy(parameters, stats, strategy)
 
-    # Exporting stuff
+    # Export isolation graph
     if parameters["output_graph"]:
         remove_unnecessary_nodes(graph)
         export_strategy_graph(graph, stats, strategy, parameters["output_dot_file"])

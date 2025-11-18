@@ -1,18 +1,19 @@
+# Python built-in libraries
 import json
-import os
 
 
-def generate_config_json(mode_indices, mode_indices_appended, filename):
+# Create a JSON of the recovery strategy for dtcontrol
+def generate_config_json_recovery(mode_indices, mode_indices_appended, filename):
     config = {"x_column_types": {"categorical": []},
               "y_column_types": {},
-              "x_column_names": ["mode", "desired_mode"],
+              "x_column_names": ["desired_mode", "mode"],
               "x_category_names": {}
               }
     config["x_column_types"]["categorical"] = list(range(len(mode_indices) + 4))
     config["x_column_names"] += list(mode_indices)
     config["x_column_names"] += ["rotational_velocity", "battery_level"]
-    config["x_category_names"]["mode"] = list(mode_indices_appended) + ["none_selected"]
     config["x_category_names"]["desired_mode"] = list(mode_indices_appended)
+    config["x_category_names"]["mode"] = list(mode_indices_appended) + ["none_selected"]
     for variable in mode_indices:
         config["x_category_names"][variable] = ["not_available", "available"]
     config["x_category_names"]["rotational_velocity"] = ["low", "high", "critical"]
@@ -22,6 +23,7 @@ def generate_config_json(mode_indices, mode_indices_appended, filename):
         print(json.dumps(config, indent=4), file=text_file)
 
 
+# Create a JSON of the isolation strategy for dtcontrol
 def generate_config_json_isolation(all_equipment, filename, hidden_variable=False):
     num_components = (len(all_equipment) + 1) if hidden_variable else len(all_equipment)
     config = {"x_column_types": {"categorical": list(range(num_components))},

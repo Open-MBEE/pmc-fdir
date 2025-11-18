@@ -1,6 +1,8 @@
+# Python built-in libraries
 import math
 import random
 
+# project-specific libraries
 from expand import find_useful_actions
 from selec import pick_random_action, simulate_one_step
 from base import get_cost, int_to_list, find_successors, no_possible_successors

@@ -1,4 +1,4 @@
-# Copyright [2023] Jonis Kiesbye
+# Copyright [2023-2025] Jonis Kiesbye
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,17 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# Python built-in libraries
 import subprocess
 import logging
 import re
 import os
 import json
 from functools import reduce
+
+# third-party libraries
 from to_precision import to_precision
+
+# project-specific libraries
 from graph_analysis.graph_analysis import get_node_name, find_leaf_nodes, get_fault_probability, \
     get_effects
 
 
+# Track configurations, convert to PRISM format
 class VariableHandler():
     def __init__(self):
         self.state_variables = {}
@@ -126,12 +132,15 @@ class VariableHandler():
         return self.configuration_index
 
 
+# Get the length of a Python filter object.
 # ilen() is written by Al Hoo, published on stackoverflow
-# https://stackoverflow.com/questions/19182188
-def ilen(iterable):
-    return reduce(lambda sum, element: sum + 1, iterable, 0)
+# https://stackoverflow.com/questions/19182188.
+# Renamed the function and variable name for clarity and to not shadow Python names.
+def filter_len(iterable):
+    return reduce(lambda length, element: length + 1, iterable, 0)
 
 
+# Get the name of a disjunctive assembly
 def get_assembly_name(graph, node):
     # get the name of the predecessor because this indicates the function of the assembly
     assembly_name = get_node_name(graph, list(graph.predecessors(node))[0])
@@ -139,6 +148,7 @@ def get_assembly_name(graph, node):
     return f"{assembly_name}_{get_node_name(graph, node).strip('>=')}"
 
 
+# Create the PRISM actions section using VariableHandler
 def get_actions(graph,
                 root_node,
                 unique_graph_per_root_node,
@@ -208,7 +218,7 @@ def get_actions(graph,
         positive_outcomes.append(variable_handler.convert_to_prism_outcome(get_effects(graph,
                                                                                        root_node)))
         # if there are no effects, we might add an empty string that needs to be filtered
-        if ilen(filter(None, positive_outcomes)):
+        if filter_len(filter(None, positive_outcomes)):
             action_string += " & ".join(filter(None, positive_outcomes))
         else:
             action_string += "true"
@@ -222,6 +232,7 @@ def get_actions(graph,
     return action_strings, cost_strings
 
 
+# Create the PRISM rewards section
 def get_cost(costs):
     cost_string = "rewards \"total_cost\"\n"
     for cost in costs:
@@ -230,7 +241,8 @@ def get_cost(costs):
     return cost_string
 
 
-def get_label(graph, all_equipment, hidden_variable, component_to_be_isolated="any"):
+# Create the labels for the PRISM file
+def get_label(all_equipment, hidden_variable, component_to_be_isolated="any"):
     if component_to_be_isolated == "any":
         label_string = "label \"isolation_complete\" =\n      "
         sub_strings = []
@@ -260,6 +272,7 @@ def get_label(graph, all_equipment, hidden_variable, component_to_be_isolated="a
     return label_string
 
 
+# Define the initial states in the PRISM file
 def get_init(graph):
     init_string = "init\n  "
     component_strings = []
@@ -270,8 +283,8 @@ def get_init(graph):
     return init_string
 
 
-def generate_prism_model(base_directory,
-                         filename,
+# Generates the PRISM file calling the previous functions
+def generate_prism_model(filename,
                          graph,
                          all_equipment,
                          unique_graph_list,
@@ -328,9 +341,9 @@ def generate_prism_model(base_directory,
         print(get_cost(costs), file=prism_file)
         # labels
         for component in all_equipment:
-            print(get_label(graph, all_equipment, hidden_variable, component), file=prism_file)
-        print(get_label(graph, all_equipment, hidden_variable, "any"), file=prism_file)
-        print(get_label(graph, all_equipment, hidden_variable, "all_available"), file=prism_file)
+            print(get_label(all_equipment, hidden_variable, component), file=prism_file)
+        print(get_label(all_equipment, hidden_variable, "any"), file=prism_file)
+        print(get_label(all_equipment, hidden_variable, "all_available"), file=prism_file)
         print("", file=prism_file)
         # init
         if not debug:
@@ -339,7 +352,8 @@ def generate_prism_model(base_directory,
     return variable_handler.get_configuration_index()
 
 
-def generate_props(base_directory, filename, all_equipment):
+# Generate the .props file for PRISM
+def generate_props(filename, all_equipment):
     trimmed_filename = os.path.split(filename)[-1].split('.')[0]
     work_directory = os.path.split(filename)[0]
     with open(f"{os.path.join(work_directory, trimmed_filename)}.props", 'w') as props_file:
@@ -354,40 +368,7 @@ def generate_props(base_directory, filename, all_equipment):
     logging.info(f"Generated props file {os.path.join(work_directory, trimmed_filename)}.props")
 
 
-def run_prism(base_directory, filename, all_equipment, components="all", engine="sparse"):
-    if components == "all":
-        isolability = {}
-        best_isolation_cost = {}
-        worst_isolation_cost = {}
-        for component in all_equipment:
-            logging.info(f"Check isolability for {component}")
-            isolability[component], best_isolation_cost[component], worst_isolation_cost[component] \
-                = run_prism_helper(base_directory,
-                                   filename,
-                                   component=component,
-                                   json_export=True,
-                                   engine=engine)
-            logging.info(f"Result for {component}: {isolability[component]}, "
-                         f"Cost: {best_isolation_cost[component]}")
-            if worst_isolation_cost[component] != best_isolation_cost[component]:
-                logging.info(f"Worst-case isolation cost for uninitialized system: "
-                             f"{worst_isolation_cost[component]}")
-    elif components == "any":
-        logging.info(f"Check isolability for any component")
-        isolability, best_isolation_cost, worst_isolation_cost \
-            = run_prism_helper(base_directory,
-                               filename,
-                               component="any",
-                               json_export=False,
-                               engine=engine)
-        logging.info(f"Result for any component: {isolability}, Cost: {best_isolation_cost}")
-        if worst_isolation_cost != best_isolation_cost:
-            logging.info(f"Worst-case isolation cost for uninitialized system: "
-                         f"{worst_isolation_cost}")
-    logging.info(f"Check for isolability done")
-    return isolability, best_isolation_cost, worst_isolation_cost
-
-
+# Run PRISM for model checking one property of the model
 def run_prism_helper(base_directory, filename, component="any", json_export=False, engine="sparse"):
     trimmed_filename = os.path.split(filename)[-1].split('.')[0]
     work_directory = os.path.split(filename)[0]
@@ -400,7 +381,7 @@ def run_prism_helper(base_directory, filename, component="any", json_export=Fals
     args = f"{os.path.join(base_directory, prism_path)} " \
            f"{os.path.join(work_directory, trimmed_filename)}.prism " \
            f"{os.path.join(work_directory, trimmed_filename)}.props -prop {component} -{engine} " \
-           f"-javamaxmem {mem_max}"
+           f"-javamaxmem {mem_max} -cuddmaxmem 2g -javastack 1g"
            # f"-exportstrat {trimmed_filename}_{component}_strategy.prism:type=actions " \
            # f"-exportstates {trimmed_filename}_{component}_strategy_states.prism"
     logging.info(f"Command: prism {trimmed_filename}.prism {trimmed_filename}.props "
@@ -452,4 +433,39 @@ def run_prism_helper(base_directory, filename, component="any", json_export=Fals
                       json_file)
         logging.debug(f"Isolation cost for {initial_state_num} initial states written to "
                       f"{json_filename}")
+    return isolability, best_isolation_cost, worst_isolation_cost
+
+
+# Iterate through the properties and call run_prism_helper
+def run_prism(base_directory, filename, all_equipment, components="all", engine="sparse"):
+    if components == "all":
+        isolability = {}
+        best_isolation_cost = {}
+        worst_isolation_cost = {}
+        for component in all_equipment:
+            logging.info(f"Check isolability for {component}")
+            isolability[component], best_isolation_cost[component], worst_isolation_cost[component] \
+                = run_prism_helper(base_directory,
+                                   filename,
+                                   component=component,
+                                   json_export=True,
+                                   engine=engine)
+            logging.info(f"Result for {component}: {isolability[component]}, "
+                         f"Cost: {best_isolation_cost[component]}")
+            if worst_isolation_cost[component] != best_isolation_cost[component]:
+                logging.info(f"Worst-case isolation cost for uninitialized system: "
+                             f"{worst_isolation_cost[component]}")
+    elif components == "any":
+        logging.info(f"Check isolability for any component")
+        isolability, best_isolation_cost, worst_isolation_cost \
+            = run_prism_helper(base_directory,
+                               filename,
+                               component="any",
+                               json_export=False,
+                               engine=engine)
+        logging.info(f"Result for any component: {isolability}, Cost: {best_isolation_cost}")
+        if worst_isolation_cost != best_isolation_cost:
+            logging.info(f"Worst-case isolation cost for uninitialized system: "
+                         f"{worst_isolation_cost}")
+    logging.info(f"Check for isolability done")
     return isolability, best_isolation_cost, worst_isolation_cost

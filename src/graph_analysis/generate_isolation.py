@@ -1,8 +1,14 @@
+# Build a strategy based on halving the set of suspects in every step. Not used in pmc-fdir.
+
+# Python built-in libraries
 import json
 import os
+
+# project-specific libraries
 from graph_analysis.graph_analysis import get_node_name
 
 
+# Output the strategy file and keep track of the state number
 class StrategyWriter:
     state_number = 0
 
@@ -60,7 +66,7 @@ def and_list(list1, list2):
     return output_list
 
 
-def find_best_configuration_weights(G, configuration_lists, suspicious_equipment_list, mode_times, writer, verbose):
+def find_best_configuration_weights(graph, configuration_lists, suspicious_equipment_list, mode_costs, writer, verbose):
     print("Configuration: " + str(suspicious_equipment_list)) if verbose else None
     print(len(suspicious_equipment_list)) if verbose else None
     print("Number of suspects: " + str(sum(suspicious_equipment_list))) if verbose else None
@@ -78,12 +84,12 @@ def find_best_configuration_weights(G, configuration_lists, suspicious_equipment
                 intersection_length = sum(and_list(configuration_list, suspicious_equipment_list))
                 intersection_length_deviation = abs(intersection_length-ideal_difference)
                 # print("Intersection length: " + str(intersection_length))
-                total_cost = 1.0 * intersection_length_deviation + 0.0001 * mode_times[mode]
+                total_cost = 1.0 * intersection_length_deviation + 0.0001 * mode_costs[mode]
                 if total_cost < best_cost:
                     # found a new best fit
                     # best_difference = abs(intersection_length-ideal_difference)
                     # print("New best fit with cost of " + str(total_cost))
-                    best_mode = get_node_name(G, mode)
+                    best_mode = get_node_name(graph, mode)
                     best_cost = total_cost
                     best_configuration = index
                     best_configuration_list = configuration_list
@@ -119,11 +125,13 @@ def trim_suspects(suspicious_equipment_list, best_configuration_list, outcome, v
     return trimmed_configuration
 
 
-def traverse_binary_tree_weights(G, configuration_lists, suspicious_equipment_list, mode_times, writer, verbose):
-    best_configuration_list = find_best_configuration_weights(G,
+# Top-level function for generating the strategy. Pass an initial state as
+# suspicious_equipment_list, and an object of class StrategyWriter as writer.
+def traverse_binary_tree_weights(graph, configuration_lists, suspicious_equipment_list, mode_costs, writer, verbose):
+    best_configuration_list = find_best_configuration_weights(graph,
                                                               configuration_lists,
                                                               suspicious_equipment_list,
-                                                              mode_times,
+                                                              mode_costs,
                                                               writer,
                                                               verbose)
     for outcome in ['positive', 'negative']:
@@ -143,9 +151,10 @@ def traverse_binary_tree_weights(G, configuration_lists, suspicious_equipment_li
             print("Hit a dead-end") if verbose else None
         else:
             # Keep searching
-            traverse_binary_tree_weights(G, configuration_lists, new_suspicious_equipment_list, mode_times, writer, verbose)
+            traverse_binary_tree_weights(graph, configuration_lists, new_suspicious_equipment_list, mode_costs, writer, verbose)
 
 
+# Generate the JSON describing the strategy to dtcontrol
 def generate_config_json(all_equipment, filename):
     config = {"x_column_types": {"categorical": []},
               "y_column_types": {},
@@ -160,8 +169,9 @@ def generate_config_json(all_equipment, filename):
         print(json.dumps(config, indent=4), file=text_file)
 
 
-def run_dtcontrol(mode_switcher_strategy_filename, verbose):
-    command = "dtcontrol --input " + mode_switcher_strategy_filename + \
+# Run dtcontrol
+def run_dtcontrol(strategy_filename, verbose):
+    command = "dtcontrol --input " + strategy_filename + \
                " --use-preset avg --rerun --benchmark-file benchmark.json"
     if not verbose:
         command += " > /dev/null 2>&1"

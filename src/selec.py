@@ -1,5 +1,7 @@
+# Python built-in libraries
 import random
 
+# project-specific libraries
 from base import check_useful_action, find_successors, find_successor_prob, get_cost, \
     is_final_state, no_possible_successors
 

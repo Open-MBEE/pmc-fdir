@@ -1,6 +1,8 @@
+# Python built-in libraries
 import re
 import logging
-import networkx as nx
+
+# project-specific libraries
 from graph_analysis.graph_analysis import find_leaf_nodes, get_node_name, find_root_nodes, \
     get_layers
 

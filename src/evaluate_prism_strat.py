@@ -1,9 +1,13 @@
+# Python built-in libraries
 import os
 import pathlib
 import re
 import time
 
+# third-party libraries
 from tqdm import tqdm
+
+# project-specific libraries
 from evaluate_mcts_strategy import sample_initial_state, sample_a_defect, export_weakness_report
 from simulations import simulate_one_step_for_defect
 from base import get_cost, no_possible_successors, get_action_from_string, int_to_list
@@ -80,7 +84,8 @@ def generate_prism_strat(parameters, statistics, prism_state_to_state_mapping):
                f"{parameters['props_file']} -prop 1 -explicit "
                f"-exportstrat {parameters['strategy_file']} "
                f"-exportstates {parameters['strategy_file'].split('.')[0]}_states_temp.prism "
-               f"-javamaxmem {mem_max} > {parameters['prism_output']}")
+               f"-javamaxmem {mem_max} -cuddmaxmem 8g -javastack 1g "
+               f"> {parameters['prism_output']}")
     os.system(command)
     state_file = open(parameters["strategy_file"].split(".")[0] + "_states_temp.prism", "r")
     state_file.readline()

@@ -1,7 +1,10 @@
+# Python built-in libraries
 import re
 
+# third-party libraries
 import networkx as nx
 
+# project-specific libraries
 from evaluate_mcts_strategy import pick_best_available_action
 from base import remove_unnecessary_nodes, int_to_list, find_successors, find_successor_prob, \
     get_action_name, no_possible_successors, get_cost, list_to_int
@@ -56,11 +59,14 @@ def export_strategy_graph(mcts_graph, statistics, strategy, filename):
                              + str(int_to_list(statistics, state)) + "\\n" + action_name + "\"];\n")
         else:
             if isolated_completely(statistics, state):
-                model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [style=filled, fillcolor=lightgreen, URL=\""
-                             + str(int_to_list(statistics, state)) + "\\n" + "Done" + "\"];\n")
+                model_file.write("\t\"" + str(int_to_list(statistics, state))
+                                 + "\" [style=filled, fillcolor=lightgreen, URL=\""
+                                 + str(int_to_list(statistics, state)) + "\\n" + "Done" + "\"];\n")
             else:
-                model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [style=filled, fillcolor=lightcoral, "
-                                                                                "URL=\"" + str(int_to_list(statistics, state)) + "\\n" + "Deadlock" + "\"];\n")
+                model_file.write("\t\"" + str(int_to_list(statistics, state))
+                                 + "\" [style=filled, fillcolor=lightcoral, URL=\""
+                                 + str(int_to_list(statistics, state)) + "\\n" + "Deadlock"
+                                 + "\"];\n")
         if not no_possible_successors(statistics, state):
             successor1, successor2 = find_successors(statistics, state, action)
             if successor1 not in nodes_outputted:
@@ -75,7 +81,8 @@ def export_strategy_graph(mcts_graph, statistics, strategy, filename):
     #         action = strategy[state]
     #         action_name = get_action_name(statistics, action)
     #         model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [URL=\""
-    #                          + str(int_to_list(statistics, state)) + "\\n" + action_name + "\"];\n")
+    #                          + str(int_to_list(statistics, state)) + "\\n"+ action_name
+    #                          + "\"];\n")
     #     else:
     #         model_file.write("\t\"" + str(int_to_list(statistics, state)) + "\" [URL=\""
     #                          + str(int_to_list(statistics, state)) + "\\n" + "Done" + "\"];\n")

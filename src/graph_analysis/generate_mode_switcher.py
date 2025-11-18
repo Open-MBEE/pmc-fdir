@@ -1,4 +1,6 @@
+# Python built-in libraries
 import logging
+
 
 def get_initialization(mode_indices, mode_indices_appended):
     initialization = """mdp
@@ -107,7 +109,7 @@ label "desired_mode_selected" = mode=desired_mode;
     return endmodule
 
 def get_initial_states(mode_indices, mode_indices_appended):
-    initial_states = "init\n  mode=" + str(len(mode_indices_appended))
+    initial_states = "\ninit\n  mode=" + str(len(mode_indices_appended))
     initial_states += " & desired_mode>=0 & rotational_velocity>=0 & battery_level>=0\n  "
     for mode in mode_indices:
         initial_states += "& " + mode + ">=0 "

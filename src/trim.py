@@ -1,7 +1,10 @@
+# Python built-in libraries
 import logging
 
+# third-party libraries
 import networkx as nx
 
+# project-specific libraries
 from expand import add_edge
 from selec import compute_expected_cost_of_action
 from base import find_successors

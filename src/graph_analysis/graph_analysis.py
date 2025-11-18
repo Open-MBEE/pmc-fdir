@@ -1,6 +1,6 @@
 # Python library of graph analysis functions for parsing the .DOT configurations
 
-# Copyright [2023] Jonis Kiesbye
+# Copyright [2023-2025] Jonis Kiesbye
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# third-party libraries
 import networkx as nx
+
+# Python built-in libraries
 import itertools
 import re
 import logging
@@ -25,6 +28,7 @@ from functools import reduce
 from operator import mul
 
 
+# Collect results of the threads started by create_graphs_mode
 class PermutationFetcher():
     def __init__(self, all_permutations):
         self.all_permutations = all_permutations
@@ -44,6 +48,7 @@ class PermutationFetcher():
         return self.graph_list, self.node_lists
 
 
+# Collect results of the threads started by create_graph_list
 class GraphListFetcher():
     def __init__(self, number_of_root_nodes):
         self.unique_graph_list = {}
@@ -78,6 +83,7 @@ class GraphListFetcher():
             self.configuration_list, self.configuration_space
 
 
+# Returns the label of the passed node ID
 def get_node_name(graph, node):
     attr = graph.nodes[node]
     if 'xlabel' in attr:
@@ -87,6 +93,7 @@ def get_node_name(graph, node):
         return node  # if the node has no name tag, return its ID
 
 
+# Reverse of get_node_name
 def get_node_id(graph, name):
     for node in list(graph.nodes):
         attr = graph.nodes[node]
@@ -97,15 +104,7 @@ def get_node_id(graph, name):
     return name  # return name in case the node ID could not be found
 
 
-def get_root_node_names(graph):
-    root_nodes = find_root_nodes(graph)
-    root_node_names = {}
-    for root_node in root_nodes:
-        root_node_names[get_node_name(graph, root_node)] = root_node
-    # logging.info(root_node_names)
-    return root_node_names
-
-
+# Create a new graph that only contains the passed nodes
 def get_subgraph(graph, node_list):
     # Copy the graph and remove all nodes not belonging to node_list to yield a subgraph
     subgraph = graph.copy()
@@ -115,6 +114,7 @@ def get_subgraph(graph, node_list):
     return subgraph
 
 
+# Convert from mode names to integers
 def get_mode_indices(graph):
     roots = sorted([get_node_name(graph, root) for root in find_root_nodes(graph)])
     mode_indices = {}
@@ -123,6 +123,7 @@ def get_mode_indices(graph):
     return mode_indices
 
 
+# Add the mode 'off'
 def get_mode_indices_appended(graph):
     mode_indices_appended = get_mode_indices(graph)
     if "off" not in mode_indices_appended.keys():
@@ -130,6 +131,7 @@ def get_mode_indices_appended(graph):
     return mode_indices_appended
 
 
+# Get the effects of a mode
 def get_effects(graph, node):
     effects = []
     attr = graph.nodes[node]
@@ -142,6 +144,7 @@ def get_effects(graph, node):
     return effects
 
 
+# Distinguish guard and component nodes
 def is_guard(graph, node):
     attr = graph.nodes[node]
     if 'xlabel' in attr:
@@ -151,6 +154,7 @@ def is_guard(graph, node):
     return False
 
 
+# Get all leaf nodes in the given graph
 def find_leaf_nodes(graph, layers=None, root_node=None, type='all'):
     # if the user specifies a root node, limit the graph and recompute the layers
     if root_node:
@@ -177,6 +181,7 @@ def find_leaf_nodes(graph, layers=None, root_node=None, type='all'):
     return leaf_nodes
 
 
+# Find nodes without edges
 def find_isolated_nodes(graph):
     isolated_nodes = []
     for node in graph:
@@ -185,6 +190,7 @@ def find_isolated_nodes(graph):
     return isolated_nodes
 
 
+# Find all roots in the graph
 def find_root_nodes(graph):
     root_nodes = []
     for node in graph:
@@ -193,6 +199,7 @@ def find_root_nodes(graph):
     return root_nodes
 
 
+# Lists of nodes that are 1,2,... steps away from the nearest root
 def get_layers(graph):
     # Go through every layer of the tree and look for OR/>= assemblies
     known_nodes = find_root_nodes(graph)
@@ -221,6 +228,7 @@ def get_layers(graph):
         layers.append(sorted(list(set(next_layer))))
 
 
+# Parse the type and num of children for the disjunctive nodes
 def create_configuration_space(graph, layers):
     configurations = {}  # valid combinations for each assembly
     configuration_space = {}  # number of combinations for each assembly
@@ -249,6 +257,7 @@ def create_configuration_space(graph, layers):
     return configurations, configuration_space, number_of_permutations
 
 
+# List of all members of the configuration space
 def create_permutations(configurations):  # compute all valid configurations for the graph
     # Every permutation is a dict containing assemblies as keys and their configurations as values
     permutations = []
@@ -276,6 +285,7 @@ def create_permutations(configurations):  # compute all valid configurations for
     return permutations
 
 
+# Prune duplicate configurations
 def remove_duplicates(graph_list, node_lists, permutations, root_node):  # prune duplicates
     unique_graph_list = []
     unique_node_lists = []
@@ -297,7 +307,7 @@ def remove_duplicates(graph_list, node_lists, permutations, root_node):  # prune
 
 
 # Configure the graph according to the permutation and prune all non-required nodes
-def create_graph(graph, root_node, invariant_nodes, permutation, fetcher):
+def create_graph_permutation(graph, root_node, invariant_nodes, permutation, fetcher):
     # Determine the set of nodes that we want to keep as children of the disjunctive nodes
     nodes_to_keep = set()
     nodes_to_delete = set()
@@ -369,8 +379,8 @@ def create_graphs_mode(graph, root_node, node_list, invariant_nodes, configurati
         with concurrent.futures.ThreadPoolExecutor(max_workers=32) as executor:
             for permutation in permutations:
                 # launch a thread that shall check the permutation
-                executor.submit(create_graph, graph, root_node, invariant_nodes, permutation,
-                                fetcher)
+                executor.submit(create_graph_permutation, graph, root_node, invariant_nodes,
+                                permutation, fetcher)
         timeout = 30  # seconds
         while not fetcher.get_done() and timeout > 0:
             logging.info(f"[{get_node_name(graph, root_node)}] Waiting for all permutation "
@@ -379,7 +389,7 @@ def create_graphs_mode(graph, root_node, node_list, invariant_nodes, configurati
             timeout -= 2
     else:
         for permutation in permutations:
-            create_graph(graph, root_node, invariant_nodes, permutation, fetcher)
+            create_graph_permutation(graph, root_node, invariant_nodes, permutation, fetcher)
     graph_list, node_lists = fetcher.get_graph_lists()
     return graph_list, node_lists
 
@@ -457,6 +467,7 @@ def create_graph_list(main_graph, threading=False):
         configuration_space
 
 
+# Determine if the graph is isolable for n faults
 def check_isolability(all_equipment, component_lists, number_of_faults):
     # Determine grammatical number for accurate output messages
     plural = False if number_of_faults == 1 else True
@@ -523,6 +534,7 @@ def check_isolability(all_equipment, component_lists, number_of_faults):
     return isolable, non_isolable, missing_components
 
 
+# Determine if the graph is n-fault-tolerant
 def check_recoverability(main_graph, all_equipment, component_lists, number_of_faults):
     # Determine grammatical number for accurate output messages
     plural = False if number_of_faults == 1 else True
@@ -575,6 +587,7 @@ def check_recoverability(main_graph, all_equipment, component_lists, number_of_f
     return sorted(recoverable), sorted(non_recoverable), single_string_components
 
 
+# Ignore guards when computing the fault probability
 def exclude_guards(graph, nodes):
     return_list = []
     for node in nodes:
@@ -588,6 +601,7 @@ def exclude_guards(graph, nodes):
     return return_list
 
 
+# Compute the fault probability of a given mode
 def get_fault_probability(graph, node, equipment_fault_probabilities):
     if len(list(graph.successors(node))) == 0:
         # We abort the recursive cycle
@@ -616,10 +630,19 @@ def get_fault_probability(graph, node, equipment_fault_probabilities):
     return fault_probability
 
 
+# Compute the fault probability of a k-out-of-n assembly
 def reliability_binomial(required, unreliabilities):
     available = len(unreliabilities)
     reliabilities = [1-unreliability for unreliability in unreliabilities]
-    return sum([math.comb(available, faults)
-                * math.prod(reliabilities[faults:])
-                * math.prod(unreliabilities[:faults])
-                for faults in range(available - required + 1)])
+    reliability = 0
+    for faults in range(available - required + 1):
+        for comb in itertools.combinations(range(available), available - faults):
+            reliabilities_comb = (reliabilities[i] for i in comb)
+            unreliabilities_comb = (unreliabilities[i] for i in set(range(available)) - set(comb))
+            reliability += math.prod(reliabilities_comb) * math.prod(unreliabilities_comb)
+    return reliability
+    # simpler version for assemblies where all children have the same fault probability:
+    # return sum([math.comb(available, faults)
+    #             * math.prod(reliabilities[faults:])
+    #             * math.prod(unreliabilities[:faults])
+    #             for faults in range(available - required + 1)])

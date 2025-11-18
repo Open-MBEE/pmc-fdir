@@ -1,5 +1,5 @@
-# built-in libraries
-import logging
+# Python built-in libraries
+# import logging
 import re
 
 # Gtk3
@@ -89,7 +89,7 @@ class InfoDialog(Gtk.Dialog):
         self.show_all()
 
 
-class MyDotWidget(xdot.ui.DotWidget):
+class IsolationGraphView(xdot.ui.DotWidget):
     def __init__(self):
         xdot.ui.DotWidget.__init__(self)
         self.connect('clicked', self.on_url_clicked)
@@ -116,18 +116,3 @@ class MyDotWidget(xdot.ui.DotWidget):
                             configuration_list=self.configuration_list)
         dialog.connect('response', lambda dialog, response: dialog.destroy())
         return True
-
-
-def add_url_property(graph_filename):
-    dotcode = ""
-    with open(graph_filename, 'r') as input:
-        for line in input.readlines():
-            if '[' in line and not '->' in line:
-                # This is a node, so we will add its ID as a URL property
-                node_name = line.replace(';', '')\
-                                .replace('\t', '')\
-                                .replace('\n', '')
-                dotcode += f"\t{node_name} [URL={node_name}];\n"
-            else:
-                dotcode += line
-    return dotcode

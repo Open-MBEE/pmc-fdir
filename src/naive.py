@@ -1,8 +1,11 @@
+# Python built-in libraries
 import time
 import random
 
+# third-party libraries
 from tqdm import tqdm
 
+# project-specific libraries
 from evaluate_mcts_strategy import sample_a_defect, sample_initial_state
 from base import get_cost, check_useful_action
 from simulations import simulate_one_step_for_defect

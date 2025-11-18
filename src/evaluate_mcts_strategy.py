@@ -1,8 +1,11 @@
+# Python built-in libraries
 import random
 import time
 
+# third-party libraries
 from tqdm import tqdm
 
+# project-specific libraries
 from simulations import simulate_one_step_for_defect
 from base import find_successors, find_successor_prob, get_cost, int_to_list, \
     no_possible_successors, get_action_name
