@@ -7,7 +7,7 @@ import pandas as pd
 from to_precision import to_precision
 
 # Python built-in libraries
-# import logging
+import logging
 
 sig_figures = 4  # number of significant digits in all numbers formatted with to_precision
 
@@ -25,9 +25,9 @@ def get_mode_gradients(graph, equipment_fault_probabilities, mode_costs):
             modified_fault_probabilities = equipment_fault_probabilities.copy()
             modified_fault_probabilities[row_index_to_equipment_name[row_index]] *= 10
             # partial derivative of the fault probability per mode and component
-            gradient = (get_fault_probability(graph, node_id, modified_fault_probabilities)
-                        - get_fault_probability(graph, node_id, equipment_fault_probabilities))
-                        # / get_fault_probability(graph, node_id, equipment_fault_probabilities))
+            gradient = ((get_fault_probability(graph, node_id, modified_fault_probabilities)
+                         - get_fault_probability(graph, node_id, equipment_fault_probabilities))
+                         / get_fault_probability(graph, node_id, equipment_fault_probabilities))
             mode_gradients[row_index, column_index] = gradient
     return mode_gradients
 
